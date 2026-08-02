@@ -16,4 +16,4 @@ clean:
 	rm -f *.o
 
 fclean: clean
-	rm -f *.bin *.iso
+	rm -rf *.bin *.iso isodir
