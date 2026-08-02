@@ -1,6 +1,13 @@
 # 1. Compile and Link
 nasm -f elf32 boot.asm -o boot.o
-gcc -m32 -c kernel.c -o kernel.o -ffreestanding -fno-stack-protector
+gcc -m32 -c kernel.c -o kernel.o \
+	-fno-builtin \
+	-fno-stack-protector \
+	-fno-rtti \
+	-nostdlib \
+	-nodefaultlibs \
+	-ffreestanding
+
 ld -m elf_i386 -T linker.ld -o kernel.bin boot.o kernel.o
 
 # 2. Setup ISO structure
@@ -12,4 +19,4 @@ cp grub.cfg isodir/boot/grub/
 grub-mkrescue -o kfs.iso isodir
 
 # 4. Run it
-qemu-system-i386 -cdrom kfs.iso
+# qemu-system-i386 -cdrom kfs.iso
