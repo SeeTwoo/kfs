@@ -3,7 +3,6 @@ nasm -f elf32 boot.asm -o boot.o
 gcc -m32 -c kernel.c -o kernel.o \
 	-fno-builtin \
 	-fno-stack-protector \
-	-fno-rtti \
 	-nostdlib \
 	-nodefaultlibs \
 	-ffreestanding
