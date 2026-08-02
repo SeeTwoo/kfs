@@ -15,7 +15,7 @@ cp kernel.bin isodir/boot/
 cp grub.cfg isodir/boot/grub/
 
 # 3. Create the ISO
-grub-mkrescue -o kfs.iso isodir
+grub-mkrescue -d /usr/lib/grub/i386-pc -o kfs.iso isodir
 
 # 4. Run it
 # qemu-system-i386 -cdrom kfs.iso
