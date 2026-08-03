@@ -11,10 +11,16 @@ extern kmain
 
 _start:
     cli
-    mov esp, stack_space
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    mov esp, stack_top
     call kmain
     hlt
 
 section .bss
 resb 8192
-stack_space:
+stack_top:

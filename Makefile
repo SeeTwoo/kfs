@@ -10,7 +10,7 @@ run: build
 	docker run --rm --name kfs_container -v $$(pwd):/app kfs sh -c "./c_build.sh"
 
 qemu:
-	qemu-system-i386 -cdrom kfs.iso
+	qemu-system-i386 -s -S -cdrom kfs.iso
 
 clean:
 	rm -f *.o
