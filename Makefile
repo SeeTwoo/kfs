@@ -78,7 +78,7 @@ it: $(DOCKER_STAMP)
 
 # general rules
 
-run: iso
+run: $(ISO)
 	qemu-system-i386 -cdrom $(ISO)
 
 clean:
