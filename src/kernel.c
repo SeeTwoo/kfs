@@ -3,6 +3,7 @@
 #include "ring_buffer.h"
 
 extern void isr21(void);
+extern void	halt();
 extern u8 ps2_set[];
 extern u8 shift_ps2_set[];
 
@@ -51,20 +52,16 @@ void print_string(int x, int y, char const *s) {
 	}
 }
 
-void kmain(void) {
+void	shell()
+{
 	struct kernel	awix;
 
-	pic_remap();
-	idt_init();
-	init_ring(&kbd_ring);
 	init_awix(&awix);
-	set_idt_gate(0x21, (uint32_t)isr21);
-	__asm__("sti");
-	screen_clear();
-	print_string(20, 12, "42");
 	while (1) {
+		asm volatile("cli");
 		if (kbd_ring.count == 0)
-			continue ;
+			asm volatile("sti; hlt");
+		asm volatile("sti");
 		u8	scancode = ring_pop(&kbd_ring);
 		if (scancode & 0x80)
 			continue ;
@@ -74,4 +71,17 @@ void kmain(void) {
 		print_char(awix.cursor.x, awix.cursor.y, c, awix.color);
 		awix.cursor.x++;
 	};
+}
+
+void kmain(void) {
+
+	pic_remap();
+	idt_init();
+	init_ring(&kbd_ring);
+	set_idt_gate(0x21, (uint32_t)isr21);
+	__asm__("sti");
+	screen_clear();
+	print_string(20, 12, "42");
+	shell();
+	while (1) ;
 }
