@@ -13,6 +13,7 @@ qemu:
 	qemu-system-i386 -s -S -cdrom kfs.iso
 
 clean:
+	rm -rf obj
 	rm -f *.o
 
 fclean: clean
