@@ -4,10 +4,11 @@
 #include "io.h"
 #include "panic.h"
 #include "ring_buffer.h"
-#include "shell.h"
 
-extern void isr21(void);
 extern void	halt();
+extern void isr21(void);
+void	kloop();
+
 extern u8 ps2_set[];
 extern u8 shift_ps2_set[];
 
@@ -31,6 +32,6 @@ void kmain(void) {
 	sti();
 	screen_clear();
 	print_string(20, 12, "42", 0x01);
-	shell();
+	kloop();
 	panic();
 }

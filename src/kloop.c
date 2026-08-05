@@ -64,7 +64,7 @@ void	wait_for_interrupt(void)
 	sti();
 }
 
-void	shell()
+void	kloop()
 {
 	struct kernel	awix;
 	u8				multibyte = 0;
