@@ -1,5 +1,7 @@
 #include "console_handling.h"
 #include "idt.h"
+#include "io.h"
+#include "panic.h"
 #include "ring_buffer.h"
 #include "shell.h"
 
@@ -29,5 +31,5 @@ void kmain(void) {
 	screen_clear();
 	print_string(20, 12, "42", 0x01);
 	shell();
-	while (1) ;
+	panic();
 }

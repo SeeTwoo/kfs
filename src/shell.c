@@ -1,5 +1,7 @@
 #include "console_handling.h"
+#include "io.h"
 #include "kernel.h"
+#include "panic.h"
 #include "ring_buffer.h"
 
 extern struct ring_buffer kbd_ring;
@@ -43,19 +45,43 @@ void	new_line(struct kernel *awix)
 	move_cursor(awix, 0, awix->cursor.y + 1);
 }
 
+void	shutdown()
+{
+	asm volatile("cli");
+	outw(0x604, 0x2000);
+	asm volatile("hlt");
+	panic();
+}
+
+void	wait_for_interrupt(void)
+{
+	asm volatile("cli");
+	if (kbd_ring.count == 0)
+		asm volatile("sti; hlt");
+	asm volatile("sti");
+}
+
 void	shell()
 {
 	struct kernel	awix;
+	u8				multibyte = 0;
 
 	init_awix(&awix);
 	while (1) {
-		asm volatile("cli");
-		if (kbd_ring.count == 0)
-			asm volatile("sti; hlt");
-		asm volatile("sti");
+		wait_for_interrupt();
 		u8	scancode = ring_pop(&kbd_ring);
-		if (scancode & 0x80)
+
+		if (multibyte && scancode == 0x53) {
+			shutdown();
+		} else if (multibyte) {
+			multibyte = 0;
 			continue ;
+		} else if (scancode == 0xE0) {
+			multibyte = 1;
+			continue ;
+		} else if (scancode & 0x80) {
+			continue ;
+		}
 		u8	c = ps2_set[scancode];
 		if (!c)
 			continue ;

@@ -3,8 +3,6 @@
 
 #include "stdint.h"
 
-extern void outb(uint16_t port, uint16_t val); 
-
 // Must be 8 octets
 struct InterruptDescriptor32 {
 	uint16_t offset_1;		 // offset bits 0..15

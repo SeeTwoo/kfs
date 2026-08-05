@@ -57,7 +57,7 @@
 62		E0 38/E0 B8		Right Alt
 64		E0 1D/E0 9D		Right Ctrl
 75		E0 52/E0 D2 	Insert
-76		E0 4B/E0 CB 	Delete
+76		E0 53/E0 D3 	Delete
 79		E0 4B/E0 CB 	Left Arrow
 80		E0 47/E0 C7 	Home
 81		E0 4F/E0 CF 	End
