@@ -1,5 +1,6 @@
 #include "console_handling.h"
 #include "idt.h"
+#include "inline_asm.h"
 #include "io.h"
 #include "panic.h"
 #include "ring_buffer.h"
@@ -27,7 +28,7 @@ void kmain(void) {
 	idt_init();
 	init_ring(&kbd_ring);
 	set_idt_gate(0x21, (uint32_t)isr21);
-	__asm__("sti");
+	sti();
 	screen_clear();
 	print_string(20, 12, "42", 0x01);
 	shell();

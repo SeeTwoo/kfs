@@ -1,10 +1,11 @@
 #include "console_handling.h"
+#include "inline_asm.h"
 
 void	panic()
 {
-	asm volatile("cli");
+	cli();
 	screen_clear();
 	print_string(4, 12, "panic", 0x0F);
 	while (1)
-		asm volatile("hlt");
+		hlt();
 }

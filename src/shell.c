@@ -1,4 +1,5 @@
 #include "console_handling.h"
+#include "inline_asm.h"
 #include "io.h"
 #include "kernel.h"
 #include "panic.h"
@@ -47,18 +48,20 @@ void	new_line(struct kernel *awix)
 
 void	shutdown()
 {
-	asm volatile("cli");
+	cli();
 	outw(0x604, 0x2000);
-	asm volatile("hlt");
+	hlt();
 	panic();
 }
 
 void	wait_for_interrupt(void)
 {
-	asm volatile("cli");
-	if (kbd_ring.count == 0)
-		asm volatile("sti; hlt");
-	asm volatile("sti");
+	cli();
+	if (kbd_ring.count == 0) {
+		sti();
+		hlt();
+	}
+	sti();
 }
 
 void	shell()
