@@ -29,3 +29,9 @@ this would be the occasion to implement read and write which would be wrappers t
 at a time
 
 create libraries like the ring buffer one or the kstdlib
+
+investigate lookup table bounds
+
+split sources
+
+doing a round of static and const check
