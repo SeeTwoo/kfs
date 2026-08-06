@@ -40,7 +40,7 @@ void	scroll_console()
 {
 	char	*vidmem = (char *)0xb8000;
 
-	memmove(vidmem, vidmem + 160, 24 * 80 * 2);
+	kmemmove(vidmem, vidmem + 160, 24 * 80 * 2);
 	line_clear(24);
 }
 

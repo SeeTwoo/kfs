@@ -1,8 +1,10 @@
+#include "console.h"
+#include "kernel.h"
 #include "kstdlib.h"
 #include "ktypes.h"
 
 //TODO : look into handling counters better
-void	*memmove(void *dest, void *src, u32 size)
+void	*kmemmove(void *dest, void *src, u32 size)
 {
 	u8	*dest_cast = (u8 *)dest;
 	u8	*src_cast = (u8 *)src;
@@ -17,7 +19,7 @@ void	*memmove(void *dest, void *src, u32 size)
 	return dest;
 }
 
-void	*memset(void *ptr, u8 c, u32 size)
+void	*kmemset(void *ptr, u8 c, u32 size)
 {
 	u8	*ptr_cast = (u8 *)ptr;
 
@@ -26,7 +28,22 @@ void	*memset(void *ptr, u8 c, u32 size)
 	return ptr;
 }
 
-i32 is_print(u8 c)
+void	kputchar(struct kernel *awix, char const c)
 {
-	return c >= 'a' && c <= 'z';
+	char	*screen = (char *)0xb8000;
+
+	if (awix->cursor.x == 80)
+		move_cursor(awix, 0, awix->cursor.y + 1);
+	if (awix->cursor.y == 25) {
+		scroll_console(awix);
+		awix->cursor.y = 24;
+	}
+	print_char(awix->cursor.x, awix->cursor.y, c, awix->color);
+	awix->cursor.x++;
+}
+
+void	kputs(struct kernel *awix, char const *s)
+{
+	for (; *s; s++)
+		kputchar(awix, *s);
 }

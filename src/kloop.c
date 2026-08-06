@@ -38,7 +38,7 @@ void	kloop()
 	init_awix(&awix);
 	init_ring(&events);
 	init_ring(&ft_stdin);
-	memset(&tty, '\0', sizeof(struct tty));
+	kmemset(&tty, '\0', sizeof(struct tty));
 	while (1) {
 		wait_for_interrupt();
 		ft_atkbd(&events, &multibyte);

@@ -37,3 +37,5 @@ split sources
 doing a round of static and const check
 
 remove parameter names in the prototypes
+
+make init_ring a single memset 0 of the whole struct

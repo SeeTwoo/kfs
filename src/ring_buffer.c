@@ -4,7 +4,7 @@
 
 void	init_ring(struct ring *ring)
 {
-	memset(ring->buffer, 0, RING_BUFFER_SIZE);
+	kmemset(ring->buffer, 0, RING_BUFFER_SIZE);
 	ring->read = 0;
 	ring->write = 0;
 	ring->count = 0;

@@ -2,28 +2,9 @@
 #include "inline_asm.h"
 #include "io.h"
 #include "kernel.h"
+#include "kstdlib.h"
 #include "panic.h"
 #include "ring_buffer.h"
-
-void	kputchar(struct kernel *awix, char const c)
-{
-	char	*screen = (char *)0xb8000;
-
-	if (awix->cursor.x == 80)
-		move_cursor(awix, 0, awix->cursor.y + 1);
-	if (awix->cursor.y == 25) {
-		scroll_console(awix);
-		awix->cursor.y = 24;
-	}
-	print_char(awix->cursor.x, awix->cursor.y, c, awix->color);
-	awix->cursor.x++;
-}
-
-void	kputs(struct kernel *awix, char const *s)
-{
-	for (; *s; s++)
-		kputchar(awix, *s);
-}
 
 void	new_line(struct kernel *awix)
 {

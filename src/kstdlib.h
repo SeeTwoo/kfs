@@ -2,9 +2,11 @@
 #define STDLIB_H
 
 #include "ktypes.h"
+#include "kernel.h"
 
-void	*memmove(void *, void *, u32);
-void	*memset(void *, u8, u32 );
-int		is_print(u8);
+void	*kmemmove(void *, void *, u32);
+void	*kmemset(void *, u8, u32 );
+void	kputchar(struct kernel *, char const c);
+void	kputs(struct kernel *, char const *s);
 
 #endif
