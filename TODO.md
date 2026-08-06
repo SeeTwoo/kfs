@@ -5,21 +5,13 @@ type division par zero
 
 keyboard.c -> handler IRQ1 -> concretement on lit le charactere on l'ecrit ??
 
-EOI obligatoire : outb(0x20, 0x20) — sans ça le PIC ne délivre plus rien.
-
 kernel.c -> appeller les fonctions(fait normalement)
 build.sh-> ajouter les fihciers
 
 
 
-target remote :1234
-symbol-file kernel.bin
-set architecture i386
-break kmain
-c
 
-
-rook into how to make memmove's counters great and not overflow
+look into how to make memmove's counters great and not overflow
 
 keep breaking down the system by separating the shell and the console
 
@@ -37,5 +29,3 @@ split sources
 doing a round of static and const check
 
 remove parameter names in the prototypes
-
-make init_ring a single memset 0 of the whole struct
