@@ -29,3 +29,7 @@ split sources
 doing a round of static and const check
 
 remove parameter names in the prototypes
+
+check safety of print string (oob writes)
+
+Take a look at how to handle ring buffers being full and empty

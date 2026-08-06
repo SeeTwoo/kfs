@@ -2,11 +2,13 @@
 #define STDLIB_H
 
 #include "ktypes.h"
-#include "kernel.h"
+#include "ring_buffer.h"
 
 void	*kmemmove(void *, void *, u32);
 void	*kmemset(void *, u8, u32 );
-void	kputchar(struct kernel *, char const c);
-void	kputs(struct kernel *, char const *s);
+u32		kputchar(struct ring *, char const);
+u32		kputs(struct ring *, char const *);
+u32		kstrlen(char const *);
+u32		kwrite(struct ring *, char const *, u32);
 
 #endif

@@ -26,8 +26,8 @@ DOCKER_STAMP	:= $(OBJ_DIR)/.docker_built
 DOCKER_RUN		:= docker run --rm -v $(PWD):/app -u $$(id -u):$$(id -g) $(IMAGE_NAME)
 
 # architecture and flags
-CFLAGS	:= -m32 -g3 -ffreestanding -fno-stack-protector -nostdlib
-CRELEASEFLAGS := -m32 -ffreestanding -fno-stack-protector -nostdlib
+CFLAGS	:= -m32 -g3 -O0 -ffreestanding -fno-stack-protector -nostdlib
+CRELEASEFLAGS := -m32 -O2 -ffreestanding -fno-stack-protector -nostdlib
 ASFLAGS	:= -f elf32 -g -F dwarf
 ASMRELEASEFLAGS := -f elf32
 LDFLAGS	:= -m elf_i386 -T $(LINKER_SCR)
@@ -82,6 +82,7 @@ it: $(DOCKER_STAMP)
 
 run: $(ISO)
 	qemu-system-i386 -cdrom $(ISO)
+
 run-debug: $(ISO)
 	qemu-system-i386 -s -S -cdrom $(ISO)
 

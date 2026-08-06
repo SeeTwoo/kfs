@@ -1,6 +1,4 @@
-#include "console.h"
 #include "idt.h"
-#include "inline_asm.h"
 #include "io.h"
 #include "ktypes.h"
 #include "panic.h"
@@ -8,10 +6,8 @@
 
 extern void	halt();
 extern void isr21(void);
-void	kloop();
+void		kloop();
 
-extern u8 ps2_set[];
-extern u8 shift_ps2_set[];
 
 struct ring kbd_ring;
 
@@ -24,15 +20,28 @@ void	pic_remap()
 	outb(0x21, 0xFD); outb(0xA1, 0xFF);
 }
 
-void kmain(void) {
-
+void kmain(void)
+{
 	pic_remap();
 	idt_init();
 	init_ring(&kbd_ring);
 	set_idt_gate(0x21, (u32)isr21);
-	sti();
-	screen_clear();
-	print_string(20, 12, "42", 0x01);
 	kloop();
 	panic();
 }
+
+// SEVEN LINES TALL
+//         :::     ::::::::
+//       :+:     :+:    :+:
+//     +:+ +:+        +:+
+//   +#+  +:+       +#+
+// +#+#+#+#+#+   +#+
+//     #+#    #+#
+//    ###   ########.fr
+//
+// FIVES LINES TALL
+//       :::       ::::::::
+//     :+:       :+:    :+:
+//   +#+  +:+         +#+
+// +#+#+#+#+#+    +#+
+//     ###     ########.fr

@@ -1,54 +1,88 @@
-#include "kernel.h"
+#include "console.h"
 #include "kstdlib.h"
 #include "ktypes.h"
+#include "ring_buffer.h"
 
-void	move_cursor(struct kernel *awix, u8 x, u8 y)
+void	init_console(struct console *c)
 {
-	awix->cursor.x = x;
-	awix->cursor.y = y;
+	c->x = 0;
+	c->y = 0;
+	c->color = 0x0F;
+	c->screen = (u8 *)0xb8000;
 }
 
-void	print_char(u8 x, u8 y, char const c, u8 color)
+void	move_cursor(struct console *c, u8 x, u8 y)
 {
-	char	*vidmem = (char *)0xb8000;
+	c->x = x;
+	c->y = y;
+}
 
-	if (x > 79 || y > 24)
+void	print_char(struct console *c, char const character)
+{
+	c->screen[((c->y * 80) + c->x) * 2] = character;
+	c->screen[((c->y * 80) + c->x) * 2 + 1] = c->color;
+}
+
+void	new_line(struct console *console)
+{
+	if (console->y == 24) {
+		scroll_console(console);
+		move_cursor(console, 0, 24);
 		return ;
-	vidmem[((y * 80) + x) * 2] = c;
-	vidmem[((y * 80) + x) * 2 + 1] = color;
+	}
+	move_cursor(console, 0, console->y + 1);
 }
 
-void print_string(u8 x, u8 y, char const *s, u8 color) {
-	char	*vidmem = (char *)0xb8000;
-
+//TODO check safety of that
+void print_string(struct console *c, char const *s) {
 	for (; *s; s++) {
-		print_char(x, y, *s, color);
-		x++;
+		if (*s == '\n')
+			new_line(c);
+		else
+			print_char(c, *s);
 	}
 }
 
-void	line_clear(u8 y)
+void	line_clear(struct console *c, u8 y)
 {
-	if (y > 24)
-		return ;
-
-	for (u8 x = 0; x < 80; x++)
-		print_char(x, y, ' ', 0x0F);
+	for (u8 x = 0; x < 80; x++) {
+		c->screen[((y * 80) + x) * 2] = ' ';
+		c->screen[((y * 80) + x) * 2 + 1] = 0x0F;
+	}
 }
 
-void	scroll_console()
+void	scroll_console(struct console *c)
 {
-	char	*vidmem = (char *)0xb8000;
-
-	kmemmove(vidmem, vidmem + 160, 24 * 80 * 2);
-	line_clear(24);
+	kmemmove(c->screen, c->screen + 160, 24 * 80 * 2);
+	line_clear(c, 24);
 }
 
-void	screen_clear() {
-	char	*vidmem = (char *)0xb8000;
-
+void	screen_clear(struct console *c) {
 	for (int i = 0; i < 80 * 25; i++) {
-		vidmem[i * 2] = ' ';
-		vidmem[i * 2 + 1] = 0x0F;
+		c->screen[i * 2] = ' ';
+		c->screen[i * 2 + 1] = 0x0F;
+	}
+}
+
+void	advance_cursor(struct console *c)
+{
+	if (c->x == 80)
+		return new_line(c);
+	c->x++;
+}
+
+void	ft_console(struct console *c, struct ring *ft_stdout)
+{
+	while (ft_stdout->count > 0) {
+		u8	character = ring_pop(ft_stdout);
+
+		if (!c) {
+			continue ;
+		} else if (character == '\n') {
+			new_line(c);
+		} else {
+			print_char(c, character);
+			advance_cursor(c);
+		}
 	}
 }

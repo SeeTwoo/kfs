@@ -1,7 +1,6 @@
-#include "console.h"
-#include "kernel.h"
 #include "kstdlib.h"
 #include "ktypes.h"
+#include "ring_buffer.h"
 
 //TODO : look into handling counters better
 void	*kmemmove(void *dest, void *src, u32 size)
@@ -28,22 +27,33 @@ void	*kmemset(void *ptr, u8 c, u32 size)
 	return ptr;
 }
 
-void	kputchar(struct kernel *awix, char const c)
+u32	kstrlen(char const *s)
 {
-	char	*screen = (char *)0xb8000;
+	u32	size = 0;
 
-	if (awix->cursor.x == 80)
-		move_cursor(awix, 0, awix->cursor.y + 1);
-	if (awix->cursor.y == 25) {
-		scroll_console(awix);
-		awix->cursor.y = 24;
-	}
-	print_char(awix->cursor.x, awix->cursor.y, c, awix->color);
-	awix->cursor.x++;
+	while (s[size])
+		size++;
+	return size;
 }
 
-void	kputs(struct kernel *awix, char const *s)
+u32	kwrite(struct ring *out, char const *s, u32 n)
 {
-	for (; *s; s++)
-		kputchar(awix, *s);
+	u32	ret = 0;
+
+	while (*s && out->count < RING_BUFFER_SIZE) {
+		ring_push(out, *s);
+		s++;
+		ret++;
+	}
+	return ret;
+}
+
+u32	kputchar(struct ring *out, char const c)
+{
+	return kwrite(out, &c, 1);
+}
+
+u32	kputs(struct ring *out, char const *s)
+{
+	return kwrite(out, s, kstrlen(s));
 }
