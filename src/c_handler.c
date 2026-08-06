@@ -1,11 +1,11 @@
-#include <stdint.h>
+#include "ktypes.h"
 
 void keyboard_handler_c(void);
 extern int g_interrupt;
-extern uint8_t inb(uint16_t);
-extern void outb(uint16_t, uint16_t);
+extern u8 inb(u16);
+extern void outb(u16, u16);
 
-void c_handler(uint32_t int_no)
+void c_handler(u32 int_no)
 {
 	if (int_no == 0x21)
 		keyboard_handler_c();   /* défini dans keyboard_handler.c */

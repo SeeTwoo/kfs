@@ -35,3 +35,5 @@ investigate lookup table bounds
 split sources
 
 doing a round of static and const check
+
+remove parameter names in the prototypes

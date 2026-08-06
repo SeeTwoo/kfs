@@ -4,13 +4,13 @@ extern void load_idt(void *idtr);
 
 static struct InterruptDescriptor32 idt[256];
 struct IDTR {
-	uint16_t limit;
-	uint32_t base;
+	u16 limit;
+	u32 base;
 } __attribute__((packed));
 
 // num -> interrupt num (32 for keyboard)
 // base -> handler memory address
-void set_idt_gate(uint8_t num, uint32_t base) {
+void set_idt_gate(u8 num, u32 base) {
 	idt[num].offset_1 = base & 0xFFFF;
 	idt[num].selector = 0x08;
 	idt[num].zero = 0;
@@ -24,7 +24,7 @@ void idt_init() {
 	struct IDTR idtr;
 
 	idtr.limit = 256 * 8 - 1;
-	idtr.base = (uint32_t)idt;
+	idtr.base = (u32)idt;
 	//call lidt
 	load_idt(&idtr);
 };

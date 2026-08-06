@@ -2,6 +2,7 @@
 #include "idt.h"
 #include "inline_asm.h"
 #include "io.h"
+#include "ktypes.h"
 #include "panic.h"
 #include "ring_buffer.h"
 
@@ -28,7 +29,7 @@ void kmain(void) {
 	pic_remap();
 	idt_init();
 	init_ring(&kbd_ring);
-	set_idt_gate(0x21, (uint32_t)isr21);
+	set_idt_gate(0x21, (u32)isr21);
 	sti();
 	screen_clear();
 	print_string(20, 12, "42", 0x01);
