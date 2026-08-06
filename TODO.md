@@ -33,3 +33,7 @@ remove parameter names in the prototypes
 check safety of print string (oob writes)
 
 Take a look at how to handle ring buffers being full and empty
+
+Make sure panic works properly
+
+enhance the shell with "commands" like shutdown, panic, help, free write...
