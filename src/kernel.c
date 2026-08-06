@@ -1,4 +1,4 @@
-#include "console_handling.h"
+#include "console.h"
 #include "idt.h"
 #include "inline_asm.h"
 #include "io.h"
@@ -12,7 +12,7 @@ void	kloop();
 extern u8 ps2_set[];
 extern u8 shift_ps2_set[];
 
-struct ring_buffer kbd_ring;
+struct ring kbd_ring;
 
 void	pic_remap()
 {

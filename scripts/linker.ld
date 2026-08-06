@@ -4,6 +4,7 @@ SECTIONS {
     .text : {
         *(.multiboot)
         *(.text)
+		*(.rodata*)
     }
     .data : { *(.data) }
     .bss  : { *(.bss) }

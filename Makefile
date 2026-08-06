@@ -26,8 +26,10 @@ DOCKER_STAMP	:= $(OBJ_DIR)/.docker_built
 DOCKER_RUN		:= docker run --rm -v $(PWD):/app -u $$(id -u):$$(id -g) $(IMAGE_NAME)
 
 # architecture and flags
-CFLAGS	:= -m32 -g3 -O0 -ffreestanding -fno-stack-protector -nostdlib
+CFLAGS	:= -m32 -g3 -ffreestanding -fno-stack-protector -nostdlib
+CRELEASEFLAGS := -m32 -ffreestanding -fno-stack-protector -nostdlib
 ASFLAGS	:= -f elf32 -g -F dwarf
+ASMRELEASEFLAGS := -f elf32
 LDFLAGS	:= -m elf_i386 -T $(LINKER_SCR)
 
 # source and obj files
@@ -44,7 +46,7 @@ all: $(OBJ_DIR) $(KERNEL_BIN)
 
 $(KERNEL_BIN): $(OBJS)
 	$(LD) $(LDFLAGS) -o $@ $(OBJS)
-	@echo "Linking complete: $(KERNEL_BIN)"
+	@echo -e "\e[32mLinking complete: $(KERNEL_BIN)\e[0m"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -83,6 +85,9 @@ run: $(ISO)
 run-debug: $(ISO)
 	qemu-system-i386 -s -S -cdrom $(ISO)
 
+release: fclean
+	$(MAKE) CFLAGS="$(CRELEASEFLAGS)" ASMFLAGS="$(ASMRELEASEFLAGS)" all
+
 clean:
 	rm -rf $(OBJ_DIR)
 	rm -rf isodir
@@ -90,5 +95,6 @@ clean:
 fclean: clean
 	rm -f $(KERNEL_BIN) $(ISO)
 
+re: fclean all
 
 .PHONY: all clean fclean it iso run

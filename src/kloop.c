@@ -1,13 +1,16 @@
-#include "console_handling.h"
+#include "console.h"
 #include "inline_asm.h"
 #include "io.h"
 #include "kernel.h"
+#include "kstdlib.h"
 #include "panic.h"
 #include "ring_buffer.h"
+#include "tty.h"
 
-extern struct ring_buffer kbd_ring;
-extern struct kernel awix;
-extern const u8 ps2_set[];
+extern struct ring kbd_ring;
+
+void	ft_atkbd(struct ring *, u8 *);
+void	ft_tty(struct tty *, struct ring *, struct ring *);
 
 void	init_awix(struct kernel *awix)
 {
@@ -64,33 +67,38 @@ void	wait_for_interrupt(void)
 	sti();
 }
 
+void	shell(struct kernel *awix, struct ring *ft_stdin)
+{
+	if (ft_stdin->count == 0)
+		return ;
+	u8	c = ring_pop(ft_stdin);
+
+	if (!c)
+		return ;
+	else if (c == '\n')
+		new_line(awix);
+	else if (c == 127)
+		shutdown();
+	else
+		kputchar(awix, c);
+}
+
 void	kloop()
 {
 	struct kernel	awix;
+	struct ring		events;
+	struct ring		ft_stdin;
+	struct tty		tty;
 	u8				multibyte = 0;
 
 	init_awix(&awix);
+	init_ring(&events);
+	init_ring(&ft_stdin);
+	memset(&tty, '\0', sizeof(struct tty));
 	while (1) {
 		wait_for_interrupt();
-		u8	scancode = ring_pop(&kbd_ring);
-
-		if (multibyte && scancode == 0x53) {
-			shutdown();
-		} else if (multibyte) {
-			multibyte = 0;
-			continue ;
-		} else if (scancode == 0xE0) {
-			multibyte = 1;
-			continue ;
-		} else if (scancode & 0x80) {
-			continue ;
-		}
-		u8	c = ps2_set[scancode];
-		if (!c)
-			continue ;
-		if (c == '\n')
-			new_line(&awix);
-		else
-			kputchar(&awix, c);
+		ft_atkbd(&events, &multibyte);
+		ft_tty(&tty, &events, &ft_stdin);
+		shell(&awix, &ft_stdin);
 	};
 }

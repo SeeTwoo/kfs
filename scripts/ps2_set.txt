@@ -2,7 +2,8 @@
 |          ps2 set 1 sorted by scancode             |
 |===================================================|
 
-
+scancode		character		event name
+press/release	regular/shift
 
 01/81			Esc				ESC
 02/82			1  !			ONE
@@ -107,3 +108,7 @@ E0 53/E0 D3 	Delete			DELETE
 
 E1 1D 45/E1 9D C5				BRK
 E0 2A E0 37/E0 B7 E0 AA			PR_SCR
+
+|===================================================|
+|          ps2 set 1 sorted by scancode             |
+|===================================================|
