@@ -13,12 +13,7 @@ build.sh-> ajouter les fihciers
 
 look into how to make memmove's counters great and not overflow
 
-keep breaking down the system by separating the shell and the console
-
-we will need to create a stdout in the middle
-
-this would be the occasion to implement read and write which would be wrappers to pop or push several values
-at a time
+implement read from a ring buffer
 
 create libraries like the ring buffer one or the kstdlib
 
