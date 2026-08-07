@@ -32,3 +32,5 @@ Take a look at how to handle ring buffers being full and empty
 add a message argument to the panic
 
 enhance the shell with "commands" like shutdown, panic, help, free write...
+
+fix the rwx issue for the text section in the linker script

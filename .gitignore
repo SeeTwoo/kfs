@@ -3,3 +3,4 @@ kfs.iso
 *.o
 obj
 compile_commands.json
+awix.elf
