@@ -6,8 +6,8 @@ void	panic()
 	cli();
 
 	u16	*screen = (u16*)0xb8000;
-	u16	*first = screen + (((80 * 10) + 10) * 2);
-	u16	*second = screen + (((80 * 12) + 5) * 2);
+	u16	*first = screen + (80 * 10) + 30;
+	u16	*second = screen + (80 * 12) + 20;
 
 	char const	*header = "KERNEL PANIC";
 	char const	*msg = "It ain't Windows but it crashes";

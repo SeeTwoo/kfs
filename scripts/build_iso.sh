@@ -9,4 +9,7 @@ cp grub/grub.cfg isodir/boot/grub/
 
 grub-mkrescue -d /usr/lib/grub/i386-pc \
   --install-modules="multiboot biosdisk iso9660 normal" \
+  --fonts="" \
+  --locales="" \
+  --themes="" \
   -o kfs.iso isodir
