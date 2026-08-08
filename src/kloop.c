@@ -25,15 +25,15 @@ void	screen_start(struct console *c, struct ring *ft_stdout)
 {
 	init_console(c);
 	screen_clear(c);
-	/*
-	kputs(ft_stdout, "       :::       ::::::::");
-	kputs(ft_stdout, "     :+:       :+:    :+:");
-	kputs(ft_stdout, "   +#+  +:+         +#+  ");
-	kputs(ft_stdout, " +#+#+#+#+#+    +#+      ");
-	kputs(ft_stdout, "     ###     ########.fr ");
-	*/
-	kputs(ft_stdout, "42\n");
+	c->color = 0x03;
+	kputs(ft_stdout, "       :::       ::::::::\n");
+	kputs(ft_stdout, "     :+:       :+:    :+:\n");
+	kputs(ft_stdout, "   +#+  +:+         +#+  \n");
+	kputs(ft_stdout, " +#+#+#+#+#+    +#+      \n");
+	kputs(ft_stdout, "     ###     ########.fr \n");
+	kputs(ft_stdout, "\n");
 	ft_console(c, ft_stdout);
+	c->color = 0x0F;
 }
 
 void	kloop()
