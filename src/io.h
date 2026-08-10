@@ -3,7 +3,7 @@
 
 #include "ktypes.h"
 
-extern u8	inb(u16 port);
+extern u8	inb(u16);
 extern void outb(u16, u16);
 extern void outw(u16, u16);
 

@@ -5,7 +5,7 @@
 #include "ring_buffer.h"
 
 void	*kmemmove(void *, void *, u32);
-void	*kmemset(void *, u8, u32 );
+void	*kmemset(void *, u8, u32);
 u32		kputchar(struct ring *, char const);
 u32		kputs(struct ring *, char const *);
 u32		kstrlen(char const *);

@@ -14,8 +14,8 @@ struct ring {
 	volatile u8	count;
 };
 
-void	init_ring(struct ring *ring);
-void	ring_push(struct ring *ring, u8 value);
-u8		ring_pop(struct ring *ring);
+void	init_ring(struct ring *);
+void	ring_push(struct ring *, u8);
+u8		ring_pop(struct ring *);
 
 #endif

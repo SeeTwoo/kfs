@@ -13,7 +13,7 @@ struct InterruptDescriptor32 {
 } __attribute__((packed)); // dis au compilateur de ne pas ajouter de padding pour faire 8oct
 
 // remplit une entree
-void set_idt_gate(u8 num, u32 base);
+void set_idt_gate(u8, u32);
 // construit les 256 entrees + charge avec lidt (helper asm)
 void idt_init();
 
