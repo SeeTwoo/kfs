@@ -11,7 +11,7 @@ void	ft_tty(struct tty *, struct ring *, struct ring *);
 void	shell(struct ring *, struct ring *);
 void	console(struct console *, struct ring *);
 
-void	wait_for_interrupt(void)
+static void	wait_for_interrupt(void)
 {
 	cli();
 	if (kbd_ring.count == 0) {
@@ -21,7 +21,7 @@ void	wait_for_interrupt(void)
 	sti();
 }
 
-void	screen_start(struct console *c, struct ring *ft_stdout)
+static void	screen_start(struct console *c, struct ring *ft_stdout)
 {
 	init_console(c);
 	screen_clear(c);

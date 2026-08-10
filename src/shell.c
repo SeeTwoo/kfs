@@ -4,7 +4,7 @@
 #include "panic.h"
 #include "ring_buffer.h"
 
-void	shutdown()
+static void	shutdown()
 {
 	cli();
 	outw(0x604, 0x2000);

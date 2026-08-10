@@ -11,7 +11,7 @@ void		kloop();
 
 struct ring kbd_ring;
 
-void	pic_remap()
+static void	pic_remap()
 {
 	outb(0x20, 0x11); outb(0xA0, 0x11);
 	outb(0x21, 0x20); outb(0xA1, 0x28);
