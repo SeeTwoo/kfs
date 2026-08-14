@@ -4,16 +4,15 @@
 
 void	*kmemmove(void *dest, void *src, u32 size)
 {
-	u8	*dest_cast = (u8 *)dest;
-	u8	*src_cast = (u8 *)src;
+	u8	*d = (u8 *)dest;
+	u8	*s = (u8 *)src;
 
 	if (dest > src) {
-		for (u32 i = size; i > 0; i--)
-			dest_cast[size] = src_cast[size];
-		dest_cast[0] = src_cast[0];
+		while (size--)
+			d[size] = s[size];
 	} else {
 		for (u32 i = 0; i < size; i++)
-			dest_cast[i] = src_cast[i];
+			d[i] = s[i];
 	}
 	return dest;
 }
@@ -40,7 +39,7 @@ u32	kwrite(struct ring *out, char const *s, u32 n)
 {
 	u32	ret = 0;
 
-	while (*s && out->count < RING_BUFFER_SIZE) {
+	while (*s && ret <= n && out->count < RING_BUFFER_SIZE) {
 		ring_push(out, *s);
 		s++;
 		ret++;
