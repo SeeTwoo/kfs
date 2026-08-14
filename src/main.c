@@ -27,7 +27,7 @@ void kmain(void)
 	init_ring(&kbd_ring);
 	set_idt_gate(0x21, (u32)isr21);
 	kloop();
-	panic();
+	panic("Got out of kloop (play lottery) (T_T) ");
 }
 
 // SEVEN LINES TALL

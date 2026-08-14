@@ -9,7 +9,7 @@ static void	shutdown()
 	cli();
 	outw(0x604, 0x2000);
 	hlt();
-	panic();
+	panic("Shutdown failed ???????????");
 }
 
 void	shell(struct ring *ft_stdin, struct ring *ft_stdout)

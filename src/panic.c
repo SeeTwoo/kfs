@@ -1,7 +1,7 @@
 #include "inline_asm.h"
 #include "ktypes.h"
 
-void	panic()
+void	panic(char const *str)
 {
 	cli();
 
@@ -10,7 +10,7 @@ void	panic()
 	u16	*second = screen + (80 * 12) + 20;
 
 	char const	*header = "KERNEL PANIC";
-	char const	*msg = "It ain't Windows but it crashes";
+	char const	*msg = str ? str : "It ain't Windows but it crashes";
 
 	for (u32 i = 0; i < 80 * 25; i++)
 		screen[i] = (0x1F << 8) | ' ';
