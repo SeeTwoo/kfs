@@ -23,11 +23,15 @@ fix the rwx issue for the text section in the linker script
 
 ~~kloop & tty ft_atkdb -> loop to flush the ring~~
 
-backspace
+~~backspace~~
 
-cursor
+switch the screen to u16
 
-capslock
+cursor (handle arrows)
+
+cursor (handle visua vga cursor)
+
+~~capslock~~
 
 u8 -> use char when relevant
 

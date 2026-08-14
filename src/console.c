@@ -71,6 +71,14 @@ void	advance_cursor(struct console *c)
 	c->x++;
 }
 
+void	backspace(struct console *c)
+{
+	if (c->x == 0)
+		return ;
+	c->x--;
+	c->screen[(c->y * 80 * 2) + c->x * 2] = ' ';
+}
+
 void	ft_console(struct console *c, struct ring *ft_stdout)
 {
 	while (ft_stdout->count > 0) {
@@ -80,6 +88,8 @@ void	ft_console(struct console *c, struct ring *ft_stdout)
 			continue ;
 		} else if (character == '\n') {
 			new_line(c);
+		} else if (character == '\b') {
+			backspace(c);
 		} else {
 			print_char(c, character);
 			advance_cursor(c);
