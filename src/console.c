@@ -2,6 +2,38 @@
 #include "kstdlib.h"
 #include "ktypes.h"
 #include "ring_buffer.h"
+#include "io.h"
+
+void	move_cursor(struct console *c, u8 x, u8 y)
+{
+	c->x = x;
+	c->y = y;
+}
+
+void disable_vga_cursor()
+{
+	outb(0x3D4, 0x0A);
+	outb(0x3D5, 0x20);
+}
+
+void enable_vga_cursor(u8 cursor_start, u8 cursor_end)
+{
+	outb(0x3D4, 0x0A);
+	outb(0x3D5, (inb(0x3D5) & 0xC0) | cursor_start);
+
+	outb(0x3D4, 0x0B);
+	outb(0x3D5, (inb(0x3D5) & 0xE0) | cursor_end);
+}
+
+void update_vga_cursor(int x, int y)
+{
+	u16 pos = y * 80+ x;
+
+	outb(0x3D4, 0x0F);
+	outb(0x3D5, (uint8_t) (pos & 0xFF));
+	outb(0x3D4, 0x0E);
+	outb(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
+}
 
 void	init_console(struct console *c)
 {
@@ -9,13 +41,11 @@ void	init_console(struct console *c)
 	c->y = 0;
 	c->color = 0x0F;
 	c->screen = (u8 *)0xb8000;
+	enable_vga_cursor(0, 15);
+	update_vga_cursor(0, 0);
+
 }
 
-void	move_cursor(struct console *c, u8 x, u8 y)
-{
-	c->x = x;
-	c->y = y;
-}
 
 void	print_char(struct console *c, char const character)
 {
@@ -94,5 +124,6 @@ void	ft_console(struct console *c, struct ring *ft_stdout)
 			print_char(c, character);
 			advance_cursor(c);
 		}
+		update_vga_cursor(c->x,c->y);
 	}
 }
