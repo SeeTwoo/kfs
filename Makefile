@@ -14,16 +14,18 @@ KERNEL_BIN	:= awix.elf
 LINKER_SCR	:= $(LINKER_DIR)/linker.ld
 ISO			:= kfs.iso
 
-ifeq ($(find /usr/bin -type f -name grub-mkrescue), "")
+
+ifeq ($(find /usr/bin -type f -name grub-mkrescue),)
 	BUILD_ENV := docker
 else
 	BUILD_ENV := native
 endif
 
+
 # docker constants
 IMAGE_NAME		:= kfs_iso_builder
 DOCKER_STAMP	:= $(OBJ_DIR)/.docker_built
-DOCKER_RUN		:= docker run --rm -v $(PWD):/app -u $$(id -u):$$(id -g) $(IMAGE_NAME)
+DOCKER_RUN		:= docker run --rm -v $(PWD):/app --userns=keep-id $(IMAGE_NAME)
 
 # architecture and flags
 CFLAGS	:= -m32 -g3 -O0 -ffreestanding -fno-stack-protector -nostdlib
@@ -42,9 +44,9 @@ OBJS += $(patsubst $(ASM_DIR)/%.asm, $(OBJ_DIR)/%.o, $(ASM_SOURCES))
 
 # ================ RULES ==================
 
-all: $(OBJ_DIR) $(KERNEL_BIN)
+all: $(KERNEL_BIN)
 
-$(KERNEL_BIN): $(OBJS)
+$(KERNEL_BIN): $(OBJ_DIR) $(OBJS)
 	$(LD) $(LDFLAGS) -o $@ $(OBJS)
 	@echo -e "\e[32mLinking complete: $(KERNEL_BIN)\e[0m"
 
@@ -59,7 +61,9 @@ $(OBJ_DIR):
 
 # iso building
 
-iso: $(KERNEL_BIN)
+iso: $(ISO)
+
+$(ISO): $(KERNEL_BIN)
 	@echo "Detected build environment: $(BUILD_ENV)"
 ifeq ($(BUILD_ENV), native)
 	./scripts/build_iso.sh
@@ -87,7 +91,8 @@ run-debug: $(ISO)
 	qemu-system-i386 -s -S -cdrom $(ISO)
 
 release: fclean
-	$(MAKE) CFLAGS="$(CRELEASEFLAGS)" ASMFLAGS="$(ASMRELEASEFLAGS)" all
+	$(MAKE) CFLAGS="$(CRELEASEFLAGS)" ASFLAGS="$(ASMRELEASEFLAGS)" $(KERNEL_BIN)
+
 
 clean:
 	rm -rf $(OBJ_DIR)
@@ -98,4 +103,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean it iso run
+.PHONY: all clean fclean it iso run run-debug release re
