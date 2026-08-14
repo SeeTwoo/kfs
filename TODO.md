@@ -17,5 +17,20 @@ add a message argument to the panic
 enhance the shell with "commands" like shutdown, panic, help, free write...
 
 fix the rwx issue for the text section in the linker script
+(/usr/bin/ld.bfd: warning: awix.elf has a LOAD segment with RWX permissions)
 
-check build system on school's machines
+~~check build system on school's machines~~
+
+~~kloop & tty ft_atkdb -> loop to flush the ring~~
+
+backspace
+
+cursor
+
+capslock
+
+u8 -> use char when relevant
+
+ternaire or bit shifting for caps_lock ??
+
+Makefile must re compile when .h changed

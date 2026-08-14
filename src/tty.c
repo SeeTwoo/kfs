@@ -18,9 +18,13 @@ void	ft_tty(struct tty *tty, struct ring *events, struct ring *ft_stdin)
 			tty->r_shift = 1;
 		else if (event & 128 && (event & 127) == R_SHIFT)
 			tty->r_shift = 0;
+
+		else if (!(event & 128) && event == CAPS_LOCK)
+			tty->caps_lock = tty->caps_lock == 1 ? 0 : 1;
+
 		else if (event & 128)
 			return ;
-		else if (tty->l_shift || tty->r_shift)
+		else if (tty->l_shift || tty->r_shift || tty->caps_lock)
 			ring_push(ft_stdin, shift_tty_chars[event]);
 		else
 			ring_push(ft_stdin, tty_chars[event]);
