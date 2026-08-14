@@ -13,18 +13,18 @@ void	keyboard_handler_c(void)
 
 void	ft_atkbd(struct ring *events, u8 *multibyte)
 {
-	if (kbd_ring.count == 0)
-		return ;
-	u8	scancode = ring_pop(&kbd_ring);
-	u8	is_release = scancode & 0x80;
-	u8	index = scancode & 0x7F;
+	while (kbd_ring.count > 0) {
+		u8	scancode = ring_pop(&kbd_ring);
+		u8	is_release = scancode & 0x80;
+		u8	index = scancode & 0x7F;
 
-	if (scancode == 0xE0) {
-		*multibyte = 1;
-	} else if (*multibyte) {
-		ring_push(events, (u8)(extended_ps2_set[index] | is_release));
-		*multibyte = 0;
-	} else {
-		ring_push(events, ((u8)ps2_set[index] | is_release));
+		if (scancode == 0xE0) {
+			*multibyte = 1;
+		} else if (*multibyte) {
+			ring_push(events, (u8)(extended_ps2_set[index] | is_release));
+			*multibyte = 0;
+		} else {
+			ring_push(events, ((u8)ps2_set[index] | is_release));
+		}
 	}
 }
