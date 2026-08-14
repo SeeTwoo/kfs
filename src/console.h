@@ -8,7 +8,7 @@ struct console {
 	u8	x;
 	u8	y;
 	u8	color;
-	u8	*screen;
+	u16	*screen;
 };
 
 void	ft_console(struct console *, struct ring *);

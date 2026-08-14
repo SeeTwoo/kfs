@@ -4,11 +4,6 @@
 #include "ring_buffer.h"
 #include "io.h"
 
-void	move_cursor(struct console *c, u8 x, u8 y)
-{
-	c->x = x;
-	c->y = y;
-}
 
 void disable_vga_cursor()
 {
@@ -35,22 +30,27 @@ void update_vga_cursor(int x, int y)
 	outb(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
 }
 
+void	move_cursor(struct console *c, u8 x, u8 y)
+{
+	c->x = x;
+	c->y = y;
+	update_vga_cursor(c->x,c->y);
+}
+
 void	init_console(struct console *c)
 {
 	c->x = 0;
 	c->y = 0;
 	c->color = 0x0F;
-	c->screen = (u8 *)0xb8000;
+	c->screen = (u16 *)0xb8000;
 	enable_vga_cursor(0, 15);
-	update_vga_cursor(0, 0);
-
+	update_vga_cursor(c->x, c->y);
 }
 
 
 void	print_char(struct console *c, char const character)
 {
-	c->screen[((c->y * 80) + c->x) * 2] = character;
-	c->screen[((c->y * 80) + c->x) * 2 + 1] = c->color;
+	c->screen[(c->y * 80) + c->x] = (c->color << 8) | character;
 }
 
 void	new_line(struct console *console)
@@ -76,29 +76,27 @@ void print_string(struct console *c, char const *s) {
 void	line_clear(struct console *c, u8 y)
 {
 	for (u8 x = 0; x < 80; x++) {
-		c->screen[((y * 80) + x) * 2] = ' ';
-		c->screen[((y * 80) + x) * 2 + 1] = 0x0F;
+		c->screen[(y * 80) + x] = (c->color << 8) | ' ';
 	}
 }
 
 void	scroll_console(struct console *c)
 {
-	kmemmove(c->screen, c->screen + 160, 24 * 80 * 2);
+	kmemmove((u8 *)c->screen, (u8 *)c->screen + 160, 24 * 80 * 2);
 	line_clear(c, 24);
 }
 
 void	screen_clear(struct console *c) {
-	for (int i = 0; i < 80 * 25; i++) {
-		c->screen[i * 2] = ' ';
-		c->screen[i * 2 + 1] = 0x0F;
-	}
+	for (int i = 0; i < 80 * 25; i++)
+		c->screen[i] = (c->color<< 8) | ' ';
 }
 
 void	advance_cursor(struct console *c)
 {
+	c->x++;
+	update_vga_cursor(c->x,c->y);
 	if (c->x == 80)
 		return new_line(c);
-	c->x++;
 }
 
 void	backspace(struct console *c)
@@ -106,7 +104,8 @@ void	backspace(struct console *c)
 	if (c->x == 0)
 		return ;
 	c->x--;
-	c->screen[(c->y * 80 * 2) + c->x * 2] = ' ';
+	update_vga_cursor(c->x,c->y);
+	c->screen[(c->y * 80) + c->x] = (c->color << 8) | ' ';
 }
 
 void	ft_console(struct console *c, struct ring *ft_stdout)
@@ -124,6 +123,5 @@ void	ft_console(struct console *c, struct ring *ft_stdout)
 			print_char(c, character);
 			advance_cursor(c);
 		}
-		update_vga_cursor(c->x,c->y);
 	}
 }
