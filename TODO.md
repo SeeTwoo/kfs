@@ -1,4 +1,4 @@
-look into how to make memmove's counters great and not overflow
+~~look into how to make memmove's counters great and not overflow~~
 
 implement read from a ring buffer
 
