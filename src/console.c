@@ -111,7 +111,7 @@ void	backspace(struct console *c)
 void	ft_console(struct console *c, struct ring *ft_stdout)
 {
 	while (ft_stdout->count > 0) {
-		u8	character = ring_pop(ft_stdout);
+		char	character = ring_pop(ft_stdout);
 
 		if (!c) {
 			continue ;

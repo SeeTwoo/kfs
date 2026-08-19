@@ -2,8 +2,8 @@
 #include "ring_buffer.h"
 #include "tty.h"
 
-extern const u8	shift_tty_chars[];
-extern const u8 tty_chars[];
+extern const char	shift_tty_chars[];
+extern const char	tty_chars[];
 
 void	ft_tty(struct tty *tty, struct ring *events, struct ring *ft_stdin)
 {
@@ -31,7 +31,7 @@ void	ft_tty(struct tty *tty, struct ring *events, struct ring *ft_stdin)
 	}
 }
 
-const u8	tty_chars[] = {
+const char	tty_chars[] = {
 	'\0',
 	'0',
 	'1',
@@ -138,7 +138,7 @@ const u8	tty_chars[] = {
 	'\0',
 };
 
-const u8	shift_tty_chars[] = {
+const char	shift_tty_chars[] = {
 	'\0',
 	'!',
 	'!',

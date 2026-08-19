@@ -15,7 +15,7 @@ static void	shutdown()
 void	shell(struct ring *ft_stdin, struct ring *ft_stdout)
 {
 	while (ft_stdin->count > 0) {
-		u8	c = ring_pop(ft_stdin);
+		char	c = ring_pop(ft_stdin);
 
 		if (!c)
 			return ;
