@@ -29,7 +29,7 @@ section .bss
 resb 8192
 stack_top:
 
-section .data
+section .gdt
     align 4
 gdt_start:
     ; 1. Null descriptor

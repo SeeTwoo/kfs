@@ -8,4 +8,7 @@ SECTIONS {
     }
     .data : { *(.data) }
     .bss  : { *(.bss) }
+
+	. = 0x800;
+	.gdt : { *(.gdt) }
 }
