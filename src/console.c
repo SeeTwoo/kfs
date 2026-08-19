@@ -22,7 +22,7 @@ void enable_vga_cursor(u8 cursor_start, u8 cursor_end)
 
 void update_vga_cursor(int x, int y)
 {
-	u16 pos = y * 80+ x;
+	u16 pos = y * SCREEN_WIDTH+ x;
 
 	outb(0x3D4, 0x0F);
 	outb(0x3D5, (uint8_t) (pos & 0xFF));
@@ -50,14 +50,14 @@ void	init_console(struct console *csl)
 
 void	print_char(struct console *csl, char const c)
 {
-	csl->screen[(csl->y * 80) + csl->x] = (csl->color << 8) | c;
+	csl->screen[(csl->y * SCREEN_WIDTH) + csl->x] = (csl->color << 8) | c;
 }
 
 void	new_line(struct console *console)
 {
-	if (console->y == 24) {
+	if (console->y == (SCREEN_HEIGHT - 1)) {
 		scroll_console(console);
-		move_cursor(console, 0, 24);
+		move_cursor(console, 0, SCREEN_HEIGHT - 1);
 		return ;
 	}
 	move_cursor(console, 0, console->y + 1);
@@ -75,19 +75,19 @@ void print_string(struct console *csl, char const *s) {
 
 void	line_clear(struct console *csl, u8 y)
 {
-	for (u8 x = 0; x < 80; x++) {
-		csl->screen[(y * 80) + x] = (csl->color << 8) | ' ';
+	for (u8 x = 0; x < SCREEN_WIDTH; x++) {
+		csl->screen[(y * SCREEN_WIDTH) + x] = (csl->color << 8) | ' ';
 	}
 }
 
 void	scroll_console(struct console *csl)
 {
-	kmemmove((u8 *)csl->screen, (u8 *)csl->screen + 160, 24 * 80 * 2);
-	line_clear(csl, 24);
+	kmemmove((u8 *)csl->screen, (u8 *)csl->screen + (SCREEN_WIDTH * 2), (SCREEN_HEIGHT - 1) * SCREEN_WIDTH * 2);
+	line_clear(csl, SCREEN_HEIGHT - 1);
 }
 
 void	screen_clear(struct console *csl) {
-	for (int i = 0; i < 80 * 25; i++)
+	for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++)
 		csl->screen[i] = (csl->color<< 8) | ' ';
 }
 
@@ -95,7 +95,7 @@ void	advance_cursor(struct console *csl)
 {
 	csl->x++;
 	update_vga_cursor(csl->x,csl->y);
-	if (csl->x == 80)
+	if (csl->x == SCREEN_WIDTH)
 		return new_line(csl);
 }
 
@@ -105,7 +105,7 @@ void	backspace(struct console *csl)
 		return ;
 	csl->x--;
 	update_vga_cursor(csl->x,csl->y);
-	csl->screen[(csl->y * 80) + csl->x] = (csl->color << 8) | ' ';
+	csl->screen[(csl->y * SCREEN_WIDTH) + csl->x] = (csl->color << 8) | ' ';
 }
 
 void	ft_console(struct console *csl, struct ring *ft_stdout)

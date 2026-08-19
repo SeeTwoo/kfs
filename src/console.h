@@ -4,6 +4,9 @@
 #include "ktypes.h"
 #include "ring_buffer.h"
 
+#define SCREEN_HEIGHT 25
+#define SCREEN_WIDTH 80
+
 struct console {
 	u8	x;
 	u8	y;

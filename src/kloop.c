@@ -31,7 +31,7 @@ static void	screen_start(struct console *csl, struct ring *ft_stdout)
 	kputs(ft_stdout, "   +#+  +:+         +#+  \n");
 	kputs(ft_stdout, " +#+#+#+#+#+    +#+      \n");
 	kputs(ft_stdout, "     ###     ########.fr \n");
-	kputs(ft_stdout, "\n");
+	kputs(ft_stdout, "\n\n\n\n\n\n\n\n\n\n\n");
 	ft_console(csl, ft_stdout);
 	csl->color = 0x0F;
 }
