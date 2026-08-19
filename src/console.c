@@ -30,27 +30,27 @@ void update_vga_cursor(int x, int y)
 	outb(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
 }
 
-void	move_cursor(struct console *c, u8 x, u8 y)
+void	move_cursor(struct console *csl, u8 x, u8 y)
 {
-	c->x = x;
-	c->y = y;
-	update_vga_cursor(c->x,c->y);
+	csl->x = x;
+	csl->y = y;
+	update_vga_cursor(csl->x,csl->y);
 }
 
-void	init_console(struct console *c)
+void	init_console(struct console *csl)
 {
-	c->x = 0;
-	c->y = 0;
-	c->color = 0x0F;
-	c->screen = (u16 *)0xb8000;
+	csl->x = 0;
+	csl->y = 0;
+	csl->color = 0x0F;
+	csl->screen = (u16 *)0xb8000;
 	enable_vga_cursor(0, 15);
-	update_vga_cursor(c->x, c->y);
+	update_vga_cursor(csl->x, csl->y);
 }
 
 
-void	print_char(struct console *c, char const character)
+void	print_char(struct console *csl, char const c)
 {
-	c->screen[(c->y * 80) + c->x] = (c->color << 8) | character;
+	csl->screen[(csl->y * 80) + csl->x] = (csl->color << 8) | c;
 }
 
 void	new_line(struct console *console)
@@ -64,64 +64,64 @@ void	new_line(struct console *console)
 }
 
 //TODO check safety of that
-void print_string(struct console *c, char const *s) {
+void print_string(struct console *csl, char const *s) {
 	for (; *s; s++) {
 		if (*s == '\n')
-			new_line(c);
+			new_line(csl);
 		else
-			print_char(c, *s);
+			print_char(csl, *s);
 	}
 }
 
-void	line_clear(struct console *c, u8 y)
+void	line_clear(struct console *csl, u8 y)
 {
 	for (u8 x = 0; x < 80; x++) {
-		c->screen[(y * 80) + x] = (c->color << 8) | ' ';
+		csl->screen[(y * 80) + x] = (csl->color << 8) | ' ';
 	}
 }
 
-void	scroll_console(struct console *c)
+void	scroll_console(struct console *csl)
 {
-	kmemmove((u8 *)c->screen, (u8 *)c->screen + 160, 24 * 80 * 2);
-	line_clear(c, 24);
+	kmemmove((u8 *)csl->screen, (u8 *)csl->screen + 160, 24 * 80 * 2);
+	line_clear(csl, 24);
 }
 
-void	screen_clear(struct console *c) {
+void	screen_clear(struct console *csl) {
 	for (int i = 0; i < 80 * 25; i++)
-		c->screen[i] = (c->color<< 8) | ' ';
+		csl->screen[i] = (csl->color<< 8) | ' ';
 }
 
-void	advance_cursor(struct console *c)
+void	advance_cursor(struct console *csl)
 {
-	c->x++;
-	update_vga_cursor(c->x,c->y);
-	if (c->x == 80)
-		return new_line(c);
+	csl->x++;
+	update_vga_cursor(csl->x,csl->y);
+	if (csl->x == 80)
+		return new_line(csl);
 }
 
-void	backspace(struct console *c)
+void	backspace(struct console *csl)
 {
-	if (c->x == 0)
+	if (csl->x == 0)
 		return ;
-	c->x--;
-	update_vga_cursor(c->x,c->y);
-	c->screen[(c->y * 80) + c->x] = (c->color << 8) | ' ';
+	csl->x--;
+	update_vga_cursor(csl->x,csl->y);
+	csl->screen[(csl->y * 80) + csl->x] = (csl->color << 8) | ' ';
 }
 
-void	ft_console(struct console *c, struct ring *ft_stdout)
+void	ft_console(struct console *csl, struct ring *ft_stdout)
 {
 	while (ft_stdout->count > 0) {
-		char	character = ring_pop(ft_stdout);
+		char	c = ring_pop(ft_stdout);
 
-		if (!c) {
+		if (!csl) {
 			continue ;
-		} else if (character == '\n') {
-			new_line(c);
-		} else if (character == '\b') {
-			backspace(c);
+		} else if (c == '\n') {
+			new_line(csl);
+		} else if (c == '\b') {
+			backspace(csl);
 		} else {
-			print_char(c, character);
-			advance_cursor(c);
+			print_char(csl, c);
+			advance_cursor(csl);
 		}
 	}
 }

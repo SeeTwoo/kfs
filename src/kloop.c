@@ -21,19 +21,19 @@ static void	wait_for_interrupt(void)
 	sti();
 }
 
-static void	screen_start(struct console *c, struct ring *ft_stdout)
+static void	screen_start(struct console *csl, struct ring *ft_stdout)
 {
-	init_console(c);
-	screen_clear(c);
-	c->color = 0x03;
+	init_console(csl);
+	screen_clear(csl);
+	csl->color = 0x03;
 	kputs(ft_stdout, "       :::       ::::::::\n");
 	kputs(ft_stdout, "     :+:       :+:    :+:\n");
 	kputs(ft_stdout, "   +#+  +:+         +#+  \n");
 	kputs(ft_stdout, " +#+#+#+#+#+    +#+      \n");
 	kputs(ft_stdout, "     ###     ########.fr \n");
 	kputs(ft_stdout, "\n");
-	ft_console(c, ft_stdout);
-	c->color = 0x0F;
+	ft_console(csl, ft_stdout);
+	csl->color = 0x0F;
 }
 
 void	kloop()
