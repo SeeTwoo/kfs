@@ -1,5 +1,5 @@
 Build:
-- Makefile must re compile when .h changed
+- ~Makefile must re compile when .h changed~
 - create libraries like the ring buffer one or the kstdlib
 - split sources
 - fix the rwx issue for the text section in the linker script

@@ -28,8 +28,8 @@ DOCKER_STAMP	:= $(OBJ_DIR)/.docker_built
 DOCKER_RUN		:= docker run --rm -v $(PWD):/app --userns=keep-id $(IMAGE_NAME)
 
 # architecture and flags
-CFLAGS	:= -m32 -g3 -O0 -ffreestanding -fno-stack-protector -nostdlib
-CRELEASEFLAGS := -m32 -O2 -ffreestanding -fno-stack-protector -nostdlib
+CFLAGS := -m32 -g3 -O0 -ffreestanding -fno-stack-protector -nostdlib -MMD -MP
+CRELEASEFLAGS := -m32 -O2 -ffreestanding -fno-stack-protector -nostdlib -MMD -MP
 ASFLAGS	:= -f elf32 -g -F dwarf
 ASMRELEASEFLAGS := -f elf32
 LDFLAGS	:= -m elf_i386 -T $(LINKER_SCR)
@@ -41,6 +41,9 @@ ASM_SOURCES	:= $(wildcard $(ASM_DIR)/*.asm)
 # convert source paths to object paths
 OBJS := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(C_SOURCES))
 OBJS += $(patsubst $(ASM_DIR)/%.asm, $(OBJ_DIR)/%.o, $(ASM_SOURCES))
+
+DEPS := $(OBJS:.o=.d)
+
 
 # ================ RULES ==================
 
@@ -102,5 +105,7 @@ fclean: clean
 	rm -f $(KERNEL_BIN) $(ISO)
 
 re: fclean all
+
+-include $(DEPS)
 
 .PHONY: all clean fclean it iso run run-debug release re
