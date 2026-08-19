@@ -25,7 +25,7 @@ endif
 # docker constants
 IMAGE_NAME		:= kfs_iso_builder
 DOCKER_STAMP	:= $(OBJ_DIR)/.docker_built
-DOCKER_RUN		:= docker run --rm -v $(PWD):/app --userns=keep-id $(IMAGE_NAME)
+DOCKER_RUN		:= docker run --rm -v $(PWD):/app  $(IMAGE_NAME)
 
 # architecture and flags
 CFLAGS	:= -m32 -g3 -O0 -ffreestanding -fno-stack-protector -nostdlib
