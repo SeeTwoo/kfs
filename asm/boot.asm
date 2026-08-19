@@ -36,21 +36,47 @@ gdt_start:
     dd 0x0
     dd 0x0
 
-    ; 2. Code segment descriptor (offset 0x08)
+    ; 2. Kernel Mode Code segment descriptor (offset 0x08)
     dw 0xFFFF       ; limit (0-15)
     dw 0x0000       ; base (0-15)
     db 0x00         ; base (16-23)
-    db 10011010b    ; access byte (exec/read)
+    db 10011010b    ; access byte (exec/read)  / 0x9A -> 154
     db 11001111b    ; flags + limit (16-19)
     db 0x00         ; base (24-31)
 
-    ; 3. Segment descriptor (offset 0x10)
+    ; 3. Kernel Mode Data Segment descriptor (offset 0x10)
     dw 0xFFFF
     dw 0x0000
     db 0x00
-    db 10010010b
+    db 10010010b	; 0x92 -> 146
     db 11001111b
     db 0x00
+
+    ; 4. User Mode Code Segment descriptor (offset 0x18)
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 11111010b	; 0xFA -> 250
+    db 11001111b
+    db 0x00
+
+    ; 5. User Mode Data Segment descriptor (offset 0x20)
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 11110010b	; 0xF2 -> 242
+    db 11001111b
+    db 0x00
+
+	; 6. Task State Segment (offset 0x28)
+;    dw 0xFFFF
+;    dw 0x0000
+;    db 0x00
+;    db 11110010b	; 0xF2 -> 242
+;    db 11001111b
+;    db 0x00
+
+
 gdt_end:
 
 gdt_descriptor:

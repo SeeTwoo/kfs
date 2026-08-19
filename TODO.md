@@ -1,5 +1,6 @@
 Build:
 - split sources (later)
+- makefile eviter SRRC_DIR a chaque fois
 - fix the rwx issue for the text section in the linker script
 (/usr/bin/ld.bfd: warning: awix.elf has a LOAD segment with RWX permissions)
 
