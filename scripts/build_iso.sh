@@ -14,3 +14,5 @@ grub-mkrescue -d /usr/lib/grub/i386-pc \
   --locales="" \
   --themes="" \
   -o kfs.iso isodir
+
+echo -e '\x1b[32m Built iso successfully !\x1b[0m'

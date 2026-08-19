@@ -9,7 +9,7 @@ Refactor:
 - ~~u8 -> use char when relevant~~
 - ternaire or bit shifting for caps_lock ??
 - ~~switch the screen to u16~~
-- ~find another name than c for the console structure~
+- ~~find another name than c for the console structure~~
 - define SCREEN_HEIGHT & SCREEN_WIDTH
 
 Feat:
