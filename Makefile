@@ -5,9 +5,14 @@ LD	:= ld
 
 # project structure
 SRC_DIR		:= src
+LIB_KSTDLIB_DIR	:= lib/kstdlib
+LIB_RING_BUFFER_DIR	:= lib/ring_buffer
 ASM_DIR		:= asm
 LINKER_DIR	:= scripts
 OBJ_DIR		:= obj
+
+INCLUDES := -I$(SRC_DIR) -I$(LIB_KSTDLIB_DIR) -I$(LIB_RING_BUFFER_DIR)
+
 
 # names
 KERNEL_BIN	:= awix.elf
@@ -28,19 +33,44 @@ DOCKER_STAMP	:= $(OBJ_DIR)/.docker_built
 DOCKER_RUN		:= docker run --rm -v $(PWD):/app  $(IMAGE_NAME)
 
 # architecture and flags
-CFLAGS	:= -m32 -g3 -O0 -ffreestanding -fno-stack-protector -nostdlib
-CRELEASEFLAGS := -m32 -O2 -ffreestanding -fno-stack-protector -nostdlib
+CFLAGS := -m32 -g3 -O0 -ffreestanding -fno-stack-protector -nostdlib -MMD -MP $(INCLUDES)
+CRELEASEFLAGS := -m32 -O2 -ffreestanding -fno-stack-protector -nostdlib -MMD -MP $(INCLUDES)
 ASFLAGS	:= -f elf32 -g -F dwarf
 ASMRELEASEFLAGS := -f elf32
 LDFLAGS	:= -m elf_i386 -T $(LINKER_SCR)
 
 # source and obj files
-C_SOURCES	:= $(wildcard $(SRC_DIR)/*.c)
-ASM_SOURCES	:= $(wildcard $(ASM_DIR)/*.asm)
+C_SOURCES := \
+    $(SRC_DIR)/c_handler.c \
+    $(SRC_DIR)/console.c \
+    $(SRC_DIR)/ft_atkbd.c \
+    $(SRC_DIR)/idt.c \
+    $(SRC_DIR)/kloop.c \
+    $(SRC_DIR)/main.c \
+    $(SRC_DIR)/panic.c \
+    $(SRC_DIR)/ps2_sets.c \
+    $(SRC_DIR)/shell.c \
+    $(SRC_DIR)/tty.c \
+    $(LIB_KSTDLIB_DIR)/kstdlib.c \
+    $(LIB_RING_BUFFER_DIR)/ring_buffer.c
+
+ASM_SOURCES := \
+    $(ASM_DIR)/boot.asm \
+    $(ASM_DIR)/halt.asm \
+    $(ASM_DIR)/io.asm \
+    $(ASM_DIR)/isr.asm
 
 # convert source paths to object paths
-OBJS := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(C_SOURCES))
-OBJS += $(patsubst $(ASM_DIR)/%.asm, $(OBJ_DIR)/%.o, $(ASM_SOURCES))
+OBJS := \
+	$(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(filter $(SRC_DIR)/%,$(C_SOURCES))) \
+	$(patsubst $(LIB_KSTDLIB_DIR)/%.c,$(OBJ_DIR)/kstdlib/%.o,$(filter $(LIB_KSTDLIB_DIR)/%,$(C_SOURCES))) \
+	$(patsubst $(LIB_RING_BUFFER_DIR)/%.c,$(OBJ_DIR)/ring_buffer/%.o,$(filter $(LIB_RING_BUFFER_DIR)/%,$(C_SOURCES))) \
+	$(patsubst $(ASM_DIR)/%.asm,$(OBJ_DIR)/%.o,$(ASM_SOURCES))
+
+
+
+DEPS := $(OBJS:.o=.d)
+
 
 # ================ RULES ==================
 
@@ -51,9 +81,19 @@ $(KERNEL_BIN): $(OBJ_DIR) $(OBJS)
 	@echo -e "\e[32mLinking complete: $(KERNEL_BIN)\e[0m"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/kstdlib/%.o: $(LIB_KSTDLIB_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/ring_buffer/%.o: $(LIB_RING_BUFFER_DIR)/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(ASM_DIR)/%.asm
+	@mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS) $< -o $@
 
 $(OBJ_DIR):
@@ -102,5 +142,7 @@ fclean: clean
 	rm -f $(KERNEL_BIN) $(ISO)
 
 re: fclean all
+
+-include $(DEPS)
 
 .PHONY: all clean fclean it iso run run-debug release re
