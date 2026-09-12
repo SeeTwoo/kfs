@@ -1,4 +1,5 @@
 Build:
+- thin the dockerfile out for faster builds (qemu is not necessary for example I think)
 - split sources (later)
 - makefile eviter SRRC_DIR a chaque fois
 - fix the rwx issue for the text section in the linker script
