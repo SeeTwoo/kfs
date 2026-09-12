@@ -11,6 +11,7 @@ struct console {
 	u8	x;
 	u8	y;
 	u8	color;
+	u8	escape_code;
 	u16	*screen;
 };
 

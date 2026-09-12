@@ -63,7 +63,7 @@ void	new_line(struct console *console)
 	move_cursor(console, 0, console->y + 1);
 }
 
-//TODO check safety of that
+// TODO check safety of that
 void print_string(struct console *csl, char const *s) {
 	for (; *s; s++) {
 		if (*s == '\n')
@@ -113,7 +113,7 @@ void	ft_console(struct console *csl, struct ring *ft_stdout)
 	while (ft_stdout->count > 0) {
 		char	c = ring_pop(ft_stdout);
 
-		if (!csl) {
+		if (!c) {
 			continue ;
 		} else if (c == '\n') {
 			new_line(csl);
