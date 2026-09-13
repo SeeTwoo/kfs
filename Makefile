@@ -20,7 +20,7 @@ LINKER_SCR	:= $(LINKER_DIR)/linker.ld
 ISO			:= kfs.iso
 
 
-ifeq ($(find /usr/bin -type f -name grub-mkrescue),)
+ifeq ($(shell command -v grub-mkrescue 2> /dev/null),)
 	BUILD_ENV := docker
 else
 	BUILD_ENV := native
