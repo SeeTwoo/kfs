@@ -21,6 +21,7 @@ static void	welcome_screen(struct ring *ft_stdout)
 	kputs(ft_stdout, "     ###     ########.fr \n");
 	kputs(ft_stdout, "\x1b[0m");
 	kputs(ft_stdout, "\n type \"help<Enter>\"\n\n");
+	kputs(ft_stdout, "\x1b[32m prompt> \x1b[0m");
 }
 
 void	kloop()

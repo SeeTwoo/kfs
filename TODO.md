@@ -12,7 +12,8 @@ Refactor:
 
 Feat:
 - cursor (handle arrows)
-- enhance the shell with "commands" like shutdown, panic, help, clear, echo, free write...
+- enhance the shell with more "commands" like clear, echo, free write...
+- enhance the shell so it tolerates backspace gracefully (not write garbage in the command...)
 - implement read from a ring buffer
 - make the console color_handling a little more complete, let's say the 16 background colors and the 16 foreground colors
 - implement the clear escape code (H and J, one does cursor postion, the other clears)
@@ -21,3 +22,4 @@ Fix / Check:
 - investigate lookup table bounds
 - check safety of print string (oob writes)
 - Take a look at how to handle ring buffers being full and empty
+- check what happens if the line of the shell reaches the limit of the buffer, do safety stuff
