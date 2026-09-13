@@ -14,6 +14,7 @@ Feat:
 - cursor (handle arrows)
 - enhance the shell with more "commands" like clear, echo, free write...
 - enhance the shell so it tolerates backspace gracefully (not write garbage in the command...)
+- enhance the shell with a "command not found" message
 - implement read from a ring buffer
 - make the console color_handling a little more complete, let's say the 16 background colors and the 16 foreground colors
 - implement the clear escape code (H and J, one does cursor postion, the other clears)
