@@ -25,15 +25,15 @@ static void	screen_start(struct console *csl, struct ring *ft_stdout)
 {
 	init_console(csl);
 	screen_clear(csl);
-	csl->color = 0x03;
+	kputs(ft_stdout, "\x1b[36m");
 	kputs(ft_stdout, "       :::       ::::::::\n");
 	kputs(ft_stdout, "     :+:       :+:    :+:\n");
 	kputs(ft_stdout, "   +#+  +:+         +#+  \n");
 	kputs(ft_stdout, " +#+#+#+#+#+    +#+      \n");
 	kputs(ft_stdout, "     ###     ########.fr \n");
-	ft_console(csl, ft_stdout);
-	csl->color = 0x0F;
+	kputs(ft_stdout, "\x1b[0m");
 	kputs(ft_stdout, "\n type \"help<Enter>\"\n");
+	kputs(ft_stdout, "\x1b[32m green text ???\x1b[0m\n");
 	ft_console(csl, ft_stdout);
 }
 

@@ -7,12 +7,18 @@
 #define SCREEN_HEIGHT 25
 #define SCREEN_WIDTH 80
 
+struct buffer {
+	char	buffer[16];
+	u8		n;
+};
+
 struct console {
-	u8	x;
-	u8	y;
-	u8	color;
-	u8	escape_code;
-	u16	*screen;
+	u8				x;
+	u8				y;
+	u8				color;
+	u8				escaped;
+	u16				*screen;
+	struct buffer	buf;
 };
 
 void	ft_console(struct console *, struct ring *);

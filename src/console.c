@@ -42,7 +42,10 @@ void	init_console(struct console *csl)
 	csl->x = 0;
 	csl->y = 0;
 	csl->color = 0x0F;
+	csl->escaped = 0;
 	csl->screen = (u16 *)0xb8000;
+	csl->buf.n = 0;
+	kmemset(csl->buf.buffer, 0, 16);
 	enable_vga_cursor(0, 15);
 	update_vga_cursor(csl->x, csl->y);
 }
@@ -91,7 +94,7 @@ void	screen_clear(struct console *csl) {
 		csl->screen[i] = (csl->color<< 8) | ' ';
 }
 
-void	advance_cursor(struct console *csl)
+static void	advance_cursor(struct console *csl)
 {
 	csl->x++;
 	update_vga_cursor(csl->x,csl->y);
@@ -99,7 +102,7 @@ void	advance_cursor(struct console *csl)
 		return new_line(csl);
 }
 
-void	backspace(struct console *csl)
+static void	backspace(struct console *csl)
 {
 	if (csl->x == 0)
 		return ;
@@ -108,20 +111,88 @@ void	backspace(struct console *csl)
 	csl->screen[(csl->y * SCREEN_WIDTH) + csl->x] = (csl->color << 8) | ' ';
 }
 
-void	ft_console(struct console *csl, struct ring *ft_stdout)
+static void	regular_console(struct console *csl, struct ring *ft_stdout, char c)
+{
+	if (c == '\n') {
+		new_line(csl);
+	} else if (c == '\b') {
+		backspace(csl);
+	} else {
+		print_char(csl, c);
+		advance_cursor(csl);
+	}
+}
+///////QUICK AND DIRTY
+///
+int	kisalpha(char c)
+{
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+int	kisdigit(char c)
+{
+	return c >= '0' && c <= '9';
+}
+
+///////very VERY bad vt100 command parsing
+static void	do_escape_code(struct console *csl)
+{
+	char	*buf = csl->buf.buffer;
+	u8		argument = 0;
+
+	if (*buf == '[')
+		buf++;
+	while (kisdigit(*buf)) {
+		argument = (argument * 10) + (*buf - '0');
+		buf++;
+	}
+	//MAYBE A TABLE LATER WHO FUCKIN KNOWS ?????
+	if (argument == 36)
+		csl->color = 0x03;
+	else if (argument == 31)
+		csl->color = 0x04;
+	else if (argument == 32)
+		csl->color = 0x02;
+	else
+		csl->color = 0x0F;
+
+
+	//cleanup
+	kmemset(csl->buf.buffer, 0, 16);
+	csl->buf.n = 0;
+}
+
+static void	fill_buffer(struct console *csl, struct ring *ft_stdout)
 {
 	while (ft_stdout->count > 0) {
 		char	c = ring_pop(ft_stdout);
 
-		if (!c) {
+		if (!c)
 			continue ;
-		} else if (c == '\n') {
-			new_line(csl);
-		} else if (c == '\b') {
-			backspace(csl);
-		} else {
-			print_char(csl, c);
-			advance_cursor(csl);
+		csl->buf.buffer[csl->buf.n] = c;
+		if (kisalpha(c)) {
+			csl->escaped = 0;
+			do_escape_code(csl);
+			return ;
 		}
+		csl->buf.n++;
+	}
+}
+
+void	ft_console(struct console *csl, struct ring *ft_stdout)
+{
+	char	c;
+
+	while (ft_stdout->count > 0) {
+		if (csl->escaped == 1)
+			fill_buffer(csl, ft_stdout);
+
+		c = ring_pop(ft_stdout);
+		if (!c)
+			continue ;
+		else if (c == '\x1b')
+			csl->escaped = 1;
+		else
+			regular_console(csl, ft_stdout, c);
 	}
 }
