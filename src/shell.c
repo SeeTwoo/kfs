@@ -3,6 +3,13 @@
 #include "kstdlib.h"
 #include "panic.h"
 #include "ring_buffer.h"
+#include "shell.h"
+
+void	init_shell(struct shell *sh)
+{
+	kmemset(sh->line, '0', LINE_SIZE);
+	sh->current = sh->line;
+}
 
 static void	shutdown()
 {
@@ -22,9 +29,6 @@ static void	help(struct ring *ft_stdout)
 	kputs(ft_stdout, "\n");
 }
 
-static char	line[64];
-static char	*current = line;
-
 i32	kstrcmp(char const *s1, char const *s2)
 {
 	u32	i = 0;
@@ -35,30 +39,30 @@ i32	kstrcmp(char const *s1, char const *s2)
 	return s1[i] - s2[i];
 }
 
-static void	execute_line(struct ring *ft_stdout)
+static void	execute_line(struct shell *sh, struct ring *ft_stdout)
 {
-	*current = '\0';
-	current = line;
+	*(sh->current) = '\0';
+	sh->current = sh->line;
 
 	kputchar(ft_stdout, '\n');
-	if (kstrcmp(line, "shutdown") == 0)
+	if (kstrcmp(sh->line, "shutdown") == 0)
 		shutdown();
-	else if (kstrcmp(line, "panic") == 0)
+	else if (kstrcmp(sh->line, "panic") == 0)
 		panic("you like that huh ?");
-	else if (kstrcmp(line, "help") == 0)
+	else if (kstrcmp(sh->line, "help") == 0)
 		help(ft_stdout);
 	kputs(ft_stdout, "\x1b[32m prompt> \x1b[0m");
 }
 
-static void	fill_line(char c, struct ring *ft_stdout)
+static void	fill_line(struct shell *sh, char c, struct ring *ft_stdout)
 {
-	*current = c;
-	current++;
+	*(sh->current) = c;
+	sh->current++;
 	kputchar(ft_stdout, c);
 }
 
 
-void	shell(struct ring *ft_stdin, struct ring *ft_stdout)
+void	shell(struct shell *sh, struct ring *ft_stdin, struct ring *ft_stdout)
 {
 	while (ft_stdin->count > 0) {
 		char	c = ring_pop(ft_stdin);
@@ -66,10 +70,8 @@ void	shell(struct ring *ft_stdin, struct ring *ft_stdout)
 		if (!c)
 			return ;
 		else if (c == '\n')
-			execute_line(ft_stdout);
-		else if (c == 127)
-			shutdown();
+			execute_line(sh, ft_stdout);
 		else
-			fill_line(c, ft_stdout);
+			fill_line(sh, c, ft_stdout);
 	}
 }
