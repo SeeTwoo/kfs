@@ -11,20 +11,8 @@ void	ft_tty(struct tty *, struct ring *, struct ring *);
 void	shell(struct ring *, struct ring *);
 void	console(struct console *, struct ring *);
 
-static void	wait_for_interrupt(void)
+static void	welcome_screen(struct ring *ft_stdout)
 {
-	cli();
-	if (kbd_ring.count == 0) {
-		sti();
-		hlt();
-	}
-	sti();
-}
-
-static void	screen_start(struct console *csl, struct ring *ft_stdout)
-{
-	init_console(csl);
-	screen_clear(csl);
 	kputs(ft_stdout, "\x1b[36m");
 	kputs(ft_stdout, "       :::       ::::::::\n");
 	kputs(ft_stdout, "     :+:       :+:    :+:\n");
@@ -32,9 +20,7 @@ static void	screen_start(struct console *csl, struct ring *ft_stdout)
 	kputs(ft_stdout, " +#+#+#+#+#+    +#+      \n");
 	kputs(ft_stdout, "     ###     ########.fr \n");
 	kputs(ft_stdout, "\x1b[0m");
-	kputs(ft_stdout, "\n type \"help<Enter>\"\n");
-	kputs(ft_stdout, "\x1b[32m green text ???\x1b[0m\n");
-	ft_console(csl, ft_stdout);
+	kputs(ft_stdout, "\n type \"help<Enter>\"\n\n");
 }
 
 void	kloop()
@@ -49,14 +35,22 @@ void	kloop()
 	init_ring(&events);
 	init_ring(&ft_stdin);
 	init_ring(&ft_stdout);
+	init_console(&console);
 	kmemset(&tty, '\0', sizeof(struct tty));
-	screen_start(&console, &ft_stdout);
+	welcome_screen(&ft_stdout);
 	sti();
 	while (1) {
-		wait_for_interrupt();
 		ft_atkbd(&events, &multibyte);
 		ft_tty(&tty, &events, &ft_stdin);
 		shell(&ft_stdin, &ft_stdout);
 		ft_console(&console, &ft_stdout);
+
+		cli();
+		if (kbd_ring.count == 0 && events.count == 0
+			&& ft_stdin.count == 0 && ft_stdout.count == 0) {
+			sti();
+			hlt();
+		}
+		sti();
 	};
 }

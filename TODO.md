@@ -8,6 +8,7 @@ Build:
 Refactor:
 - ternaire or bit shifting for caps_lock ??
 - make the ring buffer fully encapsulated, for example with "ring_is_full" and "ring_is_empty" methods and using opaque pointers
+- put kstrcmp in the stdlib
 
 Feat:
 - cursor (handle arrows)

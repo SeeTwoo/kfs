@@ -37,6 +37,11 @@ void	move_cursor(struct console *csl, u8 x, u8 y)
 	update_vga_cursor(csl->x,csl->y);
 }
 
+void	screen_clear(struct console *csl) {
+	for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++)
+		csl->screen[i] = (csl->color<< 8) | ' ';
+}
+
 void	init_console(struct console *csl)
 {
 	csl->x = 0;
@@ -46,6 +51,7 @@ void	init_console(struct console *csl)
 	csl->screen = (u16 *)0xb8000;
 	csl->buf.n = 0;
 	kmemset(csl->buf.buffer, 0, 16);
+	screen_clear(csl);
 	enable_vga_cursor(0, 15);
 	update_vga_cursor(csl->x, csl->y);
 }
@@ -87,11 +93,6 @@ void	scroll_console(struct console *csl)
 {
 	kmemmove((u8 *)csl->screen, (u8 *)csl->screen + (SCREEN_WIDTH * 2), (SCREEN_HEIGHT - 1) * SCREEN_WIDTH * 2);
 	line_clear(csl, SCREEN_HEIGHT - 1);
-}
-
-void	screen_clear(struct console *csl) {
-	for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++)
-		csl->screen[i] = (csl->color<< 8) | ' ';
 }
 
 static void	advance_cursor(struct console *csl)
@@ -183,10 +184,12 @@ void	ft_console(struct console *csl, struct ring *ft_stdout)
 {
 	char	c;
 
-	while (ft_stdout->count > 0) {
+	while (1) {
 		if (csl->escaped == 1)
 			fill_buffer(csl, ft_stdout);
 
+		if (ft_stdout->count == 0)
+			break ;
 		c = ring_pop(ft_stdout);
 		if (!c)
 			continue ;
