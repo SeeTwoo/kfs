@@ -4,8 +4,8 @@
 #include "ktypes.h"
 
 
-#define RING_BUFFER_SIZE 2048
-#define RING_MASK 2047
+#define RING_BUFFER_SIZE 256
+#define RING_MASK 255
 
 struct ring {
 	u8			buffer[RING_BUFFER_SIZE];
