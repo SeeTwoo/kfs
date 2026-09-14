@@ -8,7 +8,7 @@
 void	init_shell(struct shell *sh)
 {
 	kmemset(sh->line, '0', LINE_SIZE);
-	sh->current = sh->line;
+	sh->current = 0;
 }
 
 static void	shutdown()
@@ -31,8 +31,8 @@ static void	help(struct ring *ft_stdout)
 
 static void	execute_line(struct shell *sh, struct ring *ft_stdout)
 {
-	*(sh->current) = '\0';
-	sh->current = sh->line;
+	sh->line[sh->current] = '\0';
+	sh->current = 0;
 
 	kputchar(ft_stdout, '\n');
 	if (kstrcmp(sh->line, "shutdown") == 0)
@@ -46,7 +46,7 @@ static void	execute_line(struct shell *sh, struct ring *ft_stdout)
 
 static void	backspace(struct shell *sh, struct ring *ft_stdout)
 {
-	if (sh->current == sh->line)
+	if (sh->current == 0)
 		return ;
 	sh->current--;
 	kputchar(ft_stdout, '\b');
@@ -54,7 +54,7 @@ static void	backspace(struct shell *sh, struct ring *ft_stdout)
 
 static void	fill_line(struct shell *sh, char c, struct ring *ft_stdout)
 {
-	*(sh->current) = c;
+	sh->line[sh->current] = c;
 	sh->current++;
 	kputchar(ft_stdout, c);
 }
@@ -71,7 +71,7 @@ void	shell(struct shell *sh, struct ring *ft_stdin, struct ring *ft_stdout)
 			execute_line(sh, ft_stdout);
 		else if (c == '\b')
 			backspace(sh, ft_stdout);
-		else
+		else if (sh->current < (LINE_SIZE - 2))
 			fill_line(sh, c, ft_stdout);
 	}
 }

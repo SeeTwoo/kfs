@@ -7,7 +7,7 @@
 
 struct shell {
 	char	line[LINE_SIZE];
-	char	*current;
+	u8		current;
 };
 
 #endif
