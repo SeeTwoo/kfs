@@ -41,6 +41,8 @@ static void	execute_line(struct shell *sh, struct ring *ft_stdout)
 		panic("you like that huh ?");
 	else if (kstrcmp(sh->line, "help") == 0)
 		help(ft_stdout);
+	else if (sh->line[0])
+		kputs(ft_stdout, "command not found\n");
 	kputs(ft_stdout, "\x1b[32m prompt> \x1b[0m");
 }
 
