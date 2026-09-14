@@ -44,16 +44,18 @@ static void	execute_line(struct shell *sh, struct ring *ft_stdout)
 	kputs(ft_stdout, "\x1b[32m prompt> \x1b[0m");
 }
 
+static void	backspace(struct shell *sh, struct ring *ft_stdout)
+{
+	if (sh->current == sh->line)
+		return ;
+	sh->current--;
+	kputchar(ft_stdout, '\b');
+}
+
 static void	fill_line(struct shell *sh, char c, struct ring *ft_stdout)
 {
-	if (c == '\b') {
-		if (sh->current == sh->line)
-			return ;
-		sh->current--;
-	} else {
-		*(sh->current) = c;
-		sh->current++;
-	}
+	*(sh->current) = c;
+	sh->current++;
 	kputchar(ft_stdout, c);
 }
 
@@ -67,6 +69,8 @@ void	shell(struct shell *sh, struct ring *ft_stdin, struct ring *ft_stdout)
 			return ;
 		else if (c == '\n')
 			execute_line(sh, ft_stdout);
+		else if (c == '\b')
+			backspace(sh, ft_stdout);
 		else
 			fill_line(sh, c, ft_stdout);
 	}
