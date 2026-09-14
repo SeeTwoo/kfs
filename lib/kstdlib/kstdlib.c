@@ -1,6 +1,26 @@
 #include "kstdlib.h"
 #include "ktypes.h"
 #include "ring_buffer.h"
+///
+u8 kisalpha(char c)
+{
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+u8 kisdigit(char c)
+{
+	return c >= '0' && c <= '9';
+}
+
+i32	kstrcmp(char const *s1, char const *s2)
+{
+	u32	i = 0;
+
+	for (; s1[i] && s2[i]; i++)
+		if (s1[i] != s2[i])
+			return s1[i] - s2[i];
+	return s1[i] - s2[i];
+}
 
 void	*kmemmove(void *dest, void *src, u32 size)
 {

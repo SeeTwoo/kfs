@@ -125,15 +125,6 @@ static void	regular_console(struct console *csl, struct ring *ft_stdout, char c)
 }
 ///////QUICK AND DIRTY
 ///
-u8 kisalpha(char c)
-{
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-}
-
-u8 kisdigit(char c)
-{
-	return c >= '0' && c <= '9';
-}
 
 ///////very VERY bad vt100 command parsing
 static void	do_escape_code(struct console *csl)

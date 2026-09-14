@@ -29,16 +29,6 @@ static void	help(struct ring *ft_stdout)
 	kputs(ft_stdout, "\n");
 }
 
-i32	kstrcmp(char const *s1, char const *s2)
-{
-	u32	i = 0;
-
-	for (; s1[i] && s2[i]; i++)
-		if (s1[i] != s2[i])
-			return s1[i] - s2[i];
-	return s1[i] - s2[i];
-}
-
 static void	execute_line(struct shell *sh, struct ring *ft_stdout)
 {
 	*(sh->current) = '\0';
