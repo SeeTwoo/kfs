@@ -20,14 +20,14 @@ void enable_vga_cursor(u8 cursor_start, u8 cursor_end)
 	outb(0x3D5, (inb(0x3D5) & 0xE0) | cursor_end);
 }
 
-void update_vga_cursor(int x, int y)
+void update_vga_cursor(u8 x, u8 y)
 {
 	u16 pos = y * SCREEN_WIDTH+ x;
 
 	outb(0x3D4, 0x0F);
-	outb(0x3D5, (uint8_t) (pos & 0xFF));
+	outb(0x3D5, (u8)(pos & 0xFF));
 	outb(0x3D4, 0x0E);
-	outb(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
+	outb(0x3D5, (u8)((pos >> 8) & 0xFF));
 }
 
 void	move_cursor(struct console *csl, u8 x, u8 y)
@@ -38,7 +38,7 @@ void	move_cursor(struct console *csl, u8 x, u8 y)
 }
 
 void	screen_clear(struct console *csl) {
-	for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++)
+	for (u32 i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++)
 		csl->screen[i] = (csl->color<< 8) | ' ';
 }
 
@@ -125,12 +125,12 @@ static void	regular_console(struct console *csl, struct ring *ft_stdout, char c)
 }
 ///////QUICK AND DIRTY
 ///
-int	kisalpha(char c)
+u8 kisalpha(char c)
 {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-int	kisdigit(char c)
+u8 kisdigit(char c)
 {
 	return c >= '0' && c <= '9';
 }
