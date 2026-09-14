@@ -2,8 +2,6 @@ Build:
 - thin the dockerfile out for faster builds (qemu is not necessary for example I think)
 - split sources (later)
 - makefile eviter SRRC_DIR a chaque fois
-- fix the rwx issue for the text section in the linker script
-(/usr/bin/ld.bfd: warning: awix.elf has a LOAD segment with RWX permissions)
 
 Refactor:
 - ternaire or bit shifting for caps_lock ??

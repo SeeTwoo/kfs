@@ -46,8 +46,14 @@ static void	execute_line(struct shell *sh, struct ring *ft_stdout)
 
 static void	fill_line(struct shell *sh, char c, struct ring *ft_stdout)
 {
-	*(sh->current) = c;
-	sh->current++;
+	if (c == '\b') {
+		if (sh->current == sh->line)
+			return ;
+		sh->current--;
+	} else {
+		*(sh->current) = c;
+		sh->current++;
+	}
 	kputchar(ft_stdout, c);
 }
 
