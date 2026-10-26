@@ -1,6 +1,8 @@
 #include "kstdlib.h"
 #include "ktypes.h"
 #include "ring_buffer.h"
+#include <stdarg.h>
+
 ///
 u8 kisalpha(char c)
 {
@@ -59,7 +61,7 @@ u32	kwrite(struct ring *out, char const *s, u32 n)
 {
 	u32	ret = 0;
 
-	while (*s && ret <= n && out->count < RING_BUFFER_SIZE) {
+	while (*s && ret < n && out->count < RING_BUFFER_SIZE) {
 		ring_push(out, *s);
 		s++;
 		ret++;
@@ -75,4 +77,44 @@ u32	kputchar(struct ring *out, char const c)
 u32	kputs(struct ring *out, char const *s)
 {
 	return kwrite(out, s, kstrlen(s));
+}
+
+static u32 kput_uint(struct ring *, u32, u32)
+{
+
+}
+
+u32 kprintf(struct ring *out, char const *fmt, ...)
+{
+	va_list params;
+	u32 ret = 0;
+
+	va_start(params, fmt);
+
+	while (*fmt && out->count < RING_BUFFER_SIZE) {
+		if (*fmt != '%') {
+			ret += kputchar(out, *fmt++);
+			continue;
+		}
+		fmt++;
+		if (*fmt == 'c')
+			ret += kputchar(out, (char)va_arg(params, int));
+		else if (*fmt == 's')
+			ret += kputs(out, va_arg(ap, char const *));
+		else if (*fmt == 'u')
+			ret += kput_uint(out, va_arg(ap, u32), 10);
+		else if (*fmt == 'x')
+			ret += kput_uint(out, va_arg(ap, u32), 16);
+		else if (*fmt == '%')
+			ret += kputchar(out, '%');
+		else if (*fmt == '\0')
+			break ;
+		else {
+			ret += kputchar(out, '%');
+			ret += kputchar(out, *fmt);
+		}
+		fmt++;
+	}
+	va_end(params);
+	return ret;
 }
