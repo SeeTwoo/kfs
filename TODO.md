@@ -1,7 +1,5 @@
 Build:
 - thin the dockerfile out for faster builds (qemu is not necessary for example I think)
-- split sources (later)
-- makefile eviter SRRC_DIR a chaque fois
 
 Refactor:
 - ternaire or bit shifting for caps_lock ??
