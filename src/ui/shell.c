@@ -26,7 +26,6 @@ static void	help(struct ring *ft_stdout)
 	kputs(ft_stdout, "     -help\n");
 	kputs(ft_stdout, "     -shutdown\n");
 	kputs(ft_stdout, "     -panic\n");
-	kputs(ft_stdout, "\n");
 }
 
 static void	execute_line(struct shell *sh, struct ring *ft_stdout)

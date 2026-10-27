@@ -8,19 +8,22 @@ PHDRS
 
 SECTIONS {
     . = 1M;
-    
+
     .text : {
         *(.multiboot)
         *(.text)
         *(.rodata*)
     } :text
 
-    .data : { 
-        *(.data) 
-        *(.gdt)
+	. = ALIGN(4096);
+
+    .data : {
+        *(.data)
+		*(.gdt)
     } :data
-    
-    .bss  : { 
-        *(.bss) 
+
+    .bss  : {
+        *(.bss)
+		*(COMMON)
     } :data
 }

@@ -11,12 +11,20 @@ extern kmain
 
 _start:
     cli
+
+	mov esi, gdt_start
+	mov edi, 0x800
+	mov ecx, gdt_end - gdt_start
+	cld
+	rep movsb
+
     lgdt [gdt_descriptor]
     mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
+	mov ax, 0x18
     mov ss, ax
     jmp 0x08:.reload_cs
 
@@ -52,7 +60,16 @@ gdt_start:
     db 11001111b
     db 0x00
 
-    ; 4. User Mode Code Segment descriptor (offset 0x18)
+	; 4. Kernel Stack
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 10010010b	; 0x92 -> 146
+    db 11001111b
+    db 0x00
+
+
+    ; 5. User Mode Code Segment descriptor (offset 0x18)
     dw 0xFFFF
     dw 0x0000
     db 0x00
@@ -60,7 +77,15 @@ gdt_start:
     db 11001111b
     db 0x00
 
-    ; 5. User Mode Data Segment descriptor (offset 0x20)
+    ; 6. User Mode Data Segment descriptor (offset 0x20)
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 11110010b	; 0xF2 -> 242
+    db 11001111b
+    db 0x00
+
+	; 7. User Stack
     dw 0xFFFF
     dw 0x0000
     db 0x00
