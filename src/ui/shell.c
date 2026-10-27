@@ -26,6 +26,12 @@ static void	help(struct ring *ft_stdout)
 	kputs(ft_stdout, "     -help\n");
 	kputs(ft_stdout, "     -shutdown\n");
 	kputs(ft_stdout, "     -panic\n");
+/*
+*/
+	kprintf(ft_stdout, "%u, %x\n", 123456789, 20);
+	kprintf(ft_stdout, "%u, %x\n", 0, 0);
+	kprintf(ft_stdout, "%u, %x\n", 10, 16);
+	kprintf(ft_stdout, "%s, %c\n", "hello", 'a');
 }
 
 static void	execute_line(struct shell *sh, struct ring *ft_stdout)

@@ -79,9 +79,24 @@ u32	kputs(struct ring *out, char const *s)
 	return kwrite(out, s, kstrlen(s));
 }
 
-static u32 kput_uint(struct ring *, u32, u32)
+static u32 kput_uint(struct ring *out, u32 num, char const *base)
 {
+	char	buf[10];
+	u8		i = 9;
+	u8		div = kstrlen(base);
+	u8		ret = 0;
 
+
+	while (num >= div) {
+		buf[i] = base[num % div];
+		i--;
+		num /= div;
+		ret++;
+	}
+	buf[i] = base[num];
+	ret++;
+	kwrite(out, &buf[i], ret);
+	return ret;
 }
 
 u32 kprintf(struct ring *out, char const *fmt, ...)
@@ -100,11 +115,11 @@ u32 kprintf(struct ring *out, char const *fmt, ...)
 		if (*fmt == 'c')
 			ret += kputchar(out, (char)va_arg(params, int));
 		else if (*fmt == 's')
-			ret += kputs(out, va_arg(ap, char const *));
+			ret += kputs(out, va_arg(params, char const *));
 		else if (*fmt == 'u')
-			ret += kput_uint(out, va_arg(ap, u32), 10);
+			ret += kput_uint(out, va_arg(params, u32), "0123456789");
 		else if (*fmt == 'x')
-			ret += kput_uint(out, va_arg(ap, u32), 16);
+			ret += kput_uint(out, va_arg(params, u32), "0123456789abcdef");
 		else if (*fmt == '%')
 			ret += kputchar(out, '%');
 		else if (*fmt == '\0')

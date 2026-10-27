@@ -14,5 +14,6 @@ u32		kputs(struct ring *, char const *);
 i32		kstrcmp(char const *s1, char const *s2);
 u32		kstrlen(char const *);
 u32		kwrite(struct ring *, char const *, u32);
+u32		kprintf(struct ring *, char const *, ...);
 
 #endif
