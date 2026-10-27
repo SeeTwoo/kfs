@@ -8,6 +8,9 @@ Refactor:
 - make the ring buffer fully encapsulated, for example with "ring_is_full" and "ring_is_empty" methods and using opaque pointers
 
 Feat:
+- mettre la gdt a 0x800
+- faire le print de la stack
+- finir printk
 - cursor (handle arrows)
 - enhance the shell with more "commands" like clear, echo, free write...
 - implement read from a ring buffer
