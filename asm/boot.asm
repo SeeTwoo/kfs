@@ -7,6 +7,8 @@ section .multiboot
 
 section .text
 global _start
+global stack_top
+global stack_bottom
 extern kmain
 
 _start:
@@ -34,7 +36,9 @@ _start:
     hlt
 
 section .bss
-resb 8192
+align 16
+stack_bottom:
+	resb 8192
 stack_top:
 
 section .gdt
@@ -106,4 +110,4 @@ gdt_end:
 
 gdt_descriptor:
     dw gdt_end - gdt_start - 1  ; size (16 bits)
-    dd gdt_start                ; Address (32 bits)
+    dd 0x800                ; Address (32 bits)
