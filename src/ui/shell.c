@@ -52,16 +52,15 @@ static void print_stack(struct ring *ft_stdout)
 */
 
 void print_stack(struct ring *ft_stdout, struct console *csl) {
-    uint32_t esp_val;
-    uint32_t ebp_val;
+    u32	esp_val;
+    u32	ebp_val;
 
     // 1. On capture l'état des registres immédiatement à l'entrée
     __asm__ volatile("mov %%esp, %0" : "=r"(esp_val));
     __asm__ volatile("mov %%ebp, %0" : "=r"(ebp_val));
 
-    uint32_t *current = (uint32_t *)esp_val;
-    uint32_t *top     = &stack_top;
-	u32			count = 0;
+    u32	*current = (u32*)esp_val;
+    u32 *top     = &stack_top;
 
     kprintf(ft_stdout, "=== KERNEL STACK DUMP ===\n");
     kprintf(ft_stdout, "ESP: 0x%x | EBP: 0x%x | TOP: 0x%x\n", esp_val, ebp_val, (uint32_t)top);
@@ -69,20 +68,17 @@ void print_stack(struct ring *ft_stdout, struct console *csl) {
 
     // 2. On itère mot par mot (4 octets) d'ESP jusqu'à stack_top
     while (current < top) {
-        if (current == (uint32_t *)esp_val) {
-            kprintf(ft_stdout, "0x%x [ESP] : 0x%x\n", (uint32_t)current, *current);
-        } else if (current == (uint32_t *)ebp_val) {
-            kprintf(ft_stdout, "0x%x [EBP] : 0x%x\n", (uint32_t)current, *current);
+        if (current == (u32*)esp_val) {
+            kprintf(ft_stdout, "0x%x [ESP] : 0x%x\n", (u32)current, *current);
+        } else if (current == (u32*)ebp_val) {
+            kprintf(ft_stdout, "0x%x [EBP] : 0x%x\n", (u32)current, *current);
         } else {
-            kprintf(ft_stdout, "0x%x       : 0x%x\n", (uint32_t)current, *current);
+            kprintf(ft_stdout, "0x%x       : 0x%x\n", (u32)current, *current);
         }
 		ft_console(csl, ft_stdout);
         current++; // Avance de 4 octets
-		count++;
     }
-
-    kprintf(ft_stdout, "stack was %u\n", count);
-    kprintf(ft_stdout, "=== END OF STACK ===\n");
+    kprintf(ft_stdout, "===    END OF STACK    ===\n");
 }
 
 static void	execute_line(struct shell *sh, struct ring *ft_stdout, struct console *csl)
