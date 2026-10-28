@@ -36,49 +36,63 @@ static void	help(struct ring *ft_stdout)
 	kprintf(ft_stdout, "%s, %c\n", "hello", 'a');
 }
 
-extern uint32_t stack_bottom;
-extern uint32_t stack_top;
+extern u32 stack_top;
 
-/*
-static void print_stack(struct ring *ft_stdout)
+void	backtrace(struct ring *ft_stdout, struct console *csl)
 {
-		uint32_t esp;
-		__asm__ volatile("mov %%esp, %0" : "=r"(esp));
+    u32 *ebp;
+    u8	frame = 0;
 
-		kprintf(ft_stdout, "Stack bottom : 0x%x\n", (uint32_t)&stack_bottom);
-    	kprintf(ft_stdout, "Stack top    : 0x%x\n", (uint32_t)&stack_top);
-    	kprintf(ft_stdout, "Current ESP  : 0x%x\n", esp);
+    __asm__ volatile("mov %%ebp, %0" : "=r"(ebp));
+
+    kprintf(ft_stdout, "=== CALL STACK BACKTRACE ===\n");
+
+    while (ebp != 0 && (u32)ebp < (u32)&stack_top) {
+        u32 saved_ebp = ebp[0];
+        u32 ret_addr  = ebp[1];
+
+        kprintf(ft_stdout, "#%u [EBP: 0x%x] Return Addr: 0x%x\n", frame++, (u32)ebp, ret_addr);
+        ft_console(csl, ft_stdout);
+
+        ebp = (u32*)saved_ebp;
+    }
+    kprintf(ft_stdout, "============================\n");
 }
-*/
 
-void print_stack(struct ring *ft_stdout, struct console *csl) {
-    u32	esp_val;
-    u32	ebp_val;
-
-    // 1. On capture l'état des registres immédiatement à l'entrée
+void	print_stack(struct ring *ft_stdout, struct console *csl)
+{
+	u32 esp_val, ebp_val;
     __asm__ volatile("mov %%esp, %0" : "=r"(esp_val));
     __asm__ volatile("mov %%ebp, %0" : "=r"(ebp_val));
 
-    u32	*current = (u32*)esp_val;
+    u32 *current = (u32*)esp_val;
     u32 *top     = &stack_top;
 
-    kprintf(ft_stdout, "=== KERNEL STACK DUMP ===\n");
-    kprintf(ft_stdout, "ESP: 0x%x | EBP: 0x%x | TOP: 0x%x\n", esp_val, ebp_val, (uint32_t)top);
-    kprintf(ft_stdout, "----------------------------------------\n");
+    kprintf(ft_stdout, "=== STACK DUMP (0x%x -> 0x%x) ===\n", esp_val, (u32)top);
 
-    // 2. On itère mot par mot (4 octets) d'ESP jusqu'à stack_top
     while (current < top) {
-        if (current == (u32*)esp_val) {
-            kprintf(ft_stdout, "0x%x [ESP] : 0x%x\n", (u32)current, *current);
-        } else if (current == (u32*)ebp_val) {
-            kprintf(ft_stdout, "0x%x [EBP] : 0x%x\n", (u32)current, *current);
-        } else {
-            kprintf(ft_stdout, "0x%x       : 0x%x\n", (u32)current, *current);
+        const char *tag = "          ";
+
+        u32 *frame = (u32*)ebp_val;
+        while (frame != 0x0 && (u32)frame < (u32)top) {
+            if (current == frame) {
+                tag = "<- [SAVED EBP]";
+                break;
+            } else if (current == frame + 1) {
+                tag = "<- [RET ADDR] ";
+                break;
+            }
+            frame = (u32*)(*frame);
         }
-		ft_console(csl, ft_stdout);
-        current++; // Avance de 4 octets
+
+        if (current == (u32*)esp_val) {
+            tag = "<- [ESP]      ";
+        }
+
+        kprintf(ft_stdout, "0x%x : 0x%x %s\n", (u32)current, *current, tag);
+        ft_console(csl, ft_stdout);
+        current++;
     }
-    kprintf(ft_stdout, "===    END OF STACK    ===\n");
 }
 
 static void	execute_line(struct shell *sh, struct ring *ft_stdout, struct console *csl)
@@ -93,6 +107,8 @@ static void	execute_line(struct shell *sh, struct ring *ft_stdout, struct consol
 		panic("you like that huh ?");
 	else if (kstrcmp(sh->line, "help") == 0)
 		help(ft_stdout);
+	else if (kstrcmp(sh->line, "backtrace") == 0)
+		backtrace(ft_stdout, csl);
 	else if (kstrcmp(sh->line, "print stack") == 0)
 		print_stack(ft_stdout, csl);
 	else if (sh->line[0])
