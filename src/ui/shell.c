@@ -1,3 +1,4 @@
+#include "console.h"
 #include "inline_asm.h"
 #include "io.h"
 #include "kstdlib.h"
@@ -50,7 +51,7 @@ static void print_stack(struct ring *ft_stdout)
 }
 */
 
-void print_stack(struct ring *ft_stdout) {
+void print_stack(struct ring *ft_stdout, struct console *csl) {
     uint32_t esp_val;
     uint32_t ebp_val;
 
@@ -60,6 +61,7 @@ void print_stack(struct ring *ft_stdout) {
 
     uint32_t *current = (uint32_t *)esp_val;
     uint32_t *top     = &stack_top;
+	u32			count = 0;
 
     kprintf(ft_stdout, "=== KERNEL STACK DUMP ===\n");
     kprintf(ft_stdout, "ESP: 0x%x | EBP: 0x%x | TOP: 0x%x\n", esp_val, ebp_val, (uint32_t)top);
@@ -74,14 +76,16 @@ void print_stack(struct ring *ft_stdout) {
         } else {
             kprintf(ft_stdout, "0x%x       : 0x%x\n", (uint32_t)current, *current);
         }
-
+		ft_console(csl, ft_stdout);
         current++; // Avance de 4 octets
+		count++;
     }
 
+    kprintf(ft_stdout, "stack was %u\n", count);
     kprintf(ft_stdout, "=== END OF STACK ===\n");
 }
 
-static void	execute_line(struct shell *sh, struct ring *ft_stdout)
+static void	execute_line(struct shell *sh, struct ring *ft_stdout, struct console *csl)
 {
 	sh->line[sh->current] = '\0';
 	sh->current = 0;
@@ -94,7 +98,7 @@ static void	execute_line(struct shell *sh, struct ring *ft_stdout)
 	else if (kstrcmp(sh->line, "help") == 0)
 		help(ft_stdout);
 	else if (kstrcmp(sh->line, "print stack") == 0)
-		print_stack(ft_stdout);
+		print_stack(ft_stdout, csl);
 	else if (sh->line[0])
 		kputs(ft_stdout, "command not found\n");
 	kputs(ft_stdout, "\x1b[32m prompt> \x1b[0m");
@@ -116,7 +120,7 @@ static void	fill_line(struct shell *sh, char c, struct ring *ft_stdout)
 }
 
 
-void	shell(struct shell *sh, struct ring *ft_stdin, struct ring *ft_stdout)
+void	shell(struct shell *sh, struct ring *ft_stdin, struct ring *ft_stdout, struct console *csl)
 {
 	while (ft_stdin->count > 0) {
 		char	c = ring_pop(ft_stdin);
@@ -124,7 +128,7 @@ void	shell(struct shell *sh, struct ring *ft_stdin, struct ring *ft_stdout)
 		if (!c)
 			return ;
 		else if (c == '\n')
-			execute_line(sh, ft_stdout);
+			execute_line(sh, ft_stdout, csl);
 		else if (c == '\b')
 			backspace(sh, ft_stdout);
 		else if (sh->current < (LINE_SIZE - 2))

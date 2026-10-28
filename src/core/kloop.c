@@ -10,8 +10,7 @@ extern struct ring kbd_ring;
 void	ft_atkbd(struct ring *, u8 *);
 void	ft_tty(struct tty *, struct ring *, struct ring *);
 void	init_shell(struct shell *);
-void	shell(struct shell *, struct ring *, struct ring *);
-void	console(struct console *, struct ring *);
+void	shell(struct shell *, struct ring *, struct ring *, struct console *);
 
 static void	welcome_screen(struct ring *ft_stdout)
 {
@@ -47,7 +46,7 @@ void	kloop()
 	while (1) {
 		ft_atkbd(&events, &multibyte);
 		ft_tty(&tty, &events, &ft_stdin);
-		shell(&sh, &ft_stdin, &ft_stdout);
+		shell(&sh, &ft_stdin, &ft_stdout, &console);
 		ft_console(&console, &ft_stdout);
 
 		cli();
