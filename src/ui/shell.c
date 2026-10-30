@@ -82,39 +82,24 @@ void	backtrace(struct ring *ft_stdout, struct console *csl)
 
 void	print_stack(struct ring *ft_stdout, struct console *csl)
 {
-	u32 esp_val, ebp_val;
-    __asm__ volatile("mov %%esp, %0" : "=r"(esp_val));
-    __asm__ volatile("mov %%ebp, %0" : "=r"(ebp_val));
+	u32 esp_val;
+	__asm__ volatile("mov %%esp, %0" : "=r"(esp_val));
 
-    u32 *current = (u32*)esp_val;
-    u32 *top     = &stack_top;
+	u32	*current = (u32*)esp_val;
+	u32	*top = &stack_top;
+	u32	count = 0;
+	//char	buffer[64];
 
-    kprintf(ft_stdout, "=== STACK DUMP (0x%x -> 0x%x) ===\n", esp_val, (u32)top);
-
-    while (current < top) {
-        const char *tag = "          ";
-
-        u32 *frame = (u32*)ebp_val;
-        while (frame != 0x0 && (u32)frame < (u32)top) {
-            if (current == frame) {
-                tag = "<- [SAVED EBP]";
-                break;
-            } else if (current == frame + 1) {
-                tag = "<- [RET ADDR] ";
-                break;
-            }
-            frame = (u32*)(*frame);
-        }
-
-        if (current == (u32*)esp_val) {
-            tag = "<- [ESP]      ";
-        }
-
-        kprintf(ft_stdout, "0x%x : 0x%x %s\n", (u32)current, *current, tag);
-        ft_console(csl, ft_stdout);
-        current++;
-    }
+	while (current < top) {
+		kprintf(ft_stdout, "0x%x : 0x%x\n", (u32)current, *current);
+		ft_console(csl, ft_stdout);
+		current++;
+		count++;
+	}
+	//buffer[56] = 'a';
+	kprintf(ft_stdout, "stack had %u element\n", count);
 }
+
 
 static void	execute_line(struct shell *sh, struct ring *ft_stdout, struct console *csl)
 {
