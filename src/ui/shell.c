@@ -59,6 +59,7 @@ void	backtrace(struct ring *ft_stdout, struct console *csl)
     kprintf(ft_stdout, "============================\n");
 }
 
+/*
 void	print_stack(struct ring *ft_stdout, struct console *csl)
 {
 	u32 esp_val, ebp_val;
@@ -94,6 +95,23 @@ void	print_stack(struct ring *ft_stdout, struct console *csl)
         current++;
     }
 }
+*/
+
+void	print_stack(struct ring *ft_stdout, struct console *csl)
+{
+	u32 esp_val;
+	__asm__ volatile("mov %%esp, %0" : "=r"(esp_val));
+
+	u32	*current = (u32*)esp_val;
+	u32	*top = &stack_top;
+
+	while (current < top) {
+		kprintf(ft_stdout, "0x%x : 0x%x\n", (u32)current, *current);
+		ft_console(csl, ft_stdout);
+		current++;
+	}
+}
+
 
 static void	execute_line(struct shell *sh, struct ring *ft_stdout, struct console *csl)
 {
