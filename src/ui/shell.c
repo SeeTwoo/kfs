@@ -20,12 +20,33 @@ static void	shutdown()
 	panic("Shutdown failed ???????????");
 }
 
+static void	reboot()
+{
+	cli();
+	while (inb(0x64) & 0x02)
+		;
+	outb(0x64, 0xFE);
+	hlt();
+	panic("Reboot failed ???????????");
+}
+
+static void	halt()
+{
+	cli();
+	while (1) {
+		hlt();
+	}
+	panic("Halt failed ???????????");
+}
+
 static void	help(struct ring *ft_stdout)
 {
 	kputs(ft_stdout, " hello !\n");
 	kputs(ft_stdout, " this kernel is VERY limited but here is stuff you can try :\n");
 	kputs(ft_stdout, "     -help\n");
 	kputs(ft_stdout, "     -shutdown\n");
+	kputs(ft_stdout, "     -reboot\n");
+	kputs(ft_stdout, "     -halt\n");
 	kputs(ft_stdout, "     -panic\n");
 	kputs(ft_stdout, "     -print stack\n");
 /*
@@ -101,8 +122,13 @@ static void	execute_line(struct shell *sh, struct ring *ft_stdout, struct consol
 	sh->current = 0;
 
 	kputchar(ft_stdout, '\n');
+	ft_console(csl, ft_stdout);
 	if (kstrcmp(sh->line, "shutdown") == 0)
 		shutdown();
+	else if (kstrcmp(sh->line, "reboot") == 0)
+		reboot();
+	else if (kstrcmp(sh->line, "halt") == 0)
+		halt();
 	else if (kstrcmp(sh->line, "panic") == 0)
 		panic("you like that huh ?");
 	else if (kstrcmp(sh->line, "help") == 0)
