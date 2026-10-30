@@ -72,7 +72,6 @@ void	new_line(struct console *console)
 	move_cursor(console, 0, console->y + 1);
 }
 
-// TODO check safety of that
 void print_string(struct console *csl, char const *s) {
 	for (; *s; s++) {
 		if (*s == '\n')
@@ -123,10 +122,8 @@ static void	regular_console(struct console *csl, struct ring *ft_stdout, char c)
 		advance_cursor(csl);
 	}
 }
-///////QUICK AND DIRTY
 ///
 
-///////very VERY bad vt100 command parsing
 static void	do_escape_code(struct console *csl)
 {
 	char	*buf = csl->buf.buffer;

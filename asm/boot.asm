@@ -97,15 +97,6 @@ gdt_start:
     db 11001111b
     db 0x00
 
-	; 6. Task State Segment (offset 0x28)
-;    dw 0xFFFF
-;    dw 0x0000
-;    db 0x00
-;    db 11110010b	; 0xF2 -> 242
-;    db 11001111b
-;    db 0x00
-
-
 gdt_end:
 
 gdt_descriptor:
