@@ -29,11 +29,11 @@ static void	help(struct ring *ft_stdout)
 	kputs(ft_stdout, "     -panic\n");
 	kputs(ft_stdout, "     -print stack\n");
 /*
-*/
 	kprintf(ft_stdout, "%u, %x\n", 123456789, 20);
 	kprintf(ft_stdout, "%u, %x\n", 0, 0);
 	kprintf(ft_stdout, "%u, %x\n", 10, 16);
 	kprintf(ft_stdout, "%s, %c\n", "hello", 'a');
+*/
 }
 
 extern u32 stack_top;
