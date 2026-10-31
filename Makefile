@@ -6,19 +6,14 @@ LD	:= ld
 # project structure
 SRC_DIR		:= src
 SRC_DIRS	:= \
-	$(SRC_DIR) \
-	$(SRC_DIR)/common \
-	$(SRC_DIR)/core \
-	$(SRC_DIR)/arch \
-	$(SRC_DIR)/drivers \
-	$(SRC_DIR)/ui
+	$(SRC_DIR)
 LIB_KSTDLIB_DIR	:= lib/kstdlib
 LIB_RING_BUFFER_DIR	:= lib/ring_buffer
 ASM_DIR		:= asm
 LINKER_DIR	:= scripts
 OBJ_DIR		:= obj
 
-INCLUDES := $(addprefix -I,$(SRC_DIRS)) -I$(LIB_KSTDLIB_DIR) -I$(LIB_RING_BUFFER_DIR)
+INCLUDES := $(addprefix -I,$(SRC_DIR)) -I$(LIB_KSTDLIB_DIR) -I$(LIB_RING_BUFFER_DIR)
 
 
 # names
@@ -48,18 +43,12 @@ LDFLAGS	:= -m elf_i386 -T $(LINKER_SCR)
 
 # source and obj files
 C_SOURCES := \
-    $(addprefix $(SRC_DIR)/core/,kloop.c main.c panic.c) \
-    $(addprefix $(SRC_DIR)/arch/,idt.c) \
-    $(addprefix $(SRC_DIR)/drivers/,c_handler.c ft_atkbd.c ps2_sets.c) \
-    $(addprefix $(SRC_DIR)/ui/,console.c shell.c tty.c) \
+    $(addprefix $(SRC_DIR)/,\
+	kloop.c main.c panic.c idt.c c_handler.c ft_atkbd.c ps2_sets.c console.c shell.c tty.c) \
     $(LIB_KSTDLIB_DIR)/kstdlib.c \
     $(LIB_RING_BUFFER_DIR)/ring_buffer.c
 
-ASM_SOURCES := \
-    $(ASM_DIR)/boot.asm \
-    $(ASM_DIR)/halt.asm \
-    $(ASM_DIR)/io.asm \
-    $(ASM_DIR)/isr.asm
+ASM_SOURCES := $(addprefix $(ASM_DIR)/,boot.asm halt.asm io.asm isr.asm)
 
 # convert source paths to object paths
 OBJS := \
