@@ -1,15 +1,71 @@
-#include "idt.h"
+#include "console.h"
+#include "inline_asm.h"
+#include "interrupts.h"
 #include "io.h"
+#include "kstdlib.h"
 #include "ktypes.h"
 #include "panic.h"
 #include "ring_buffer.h"
+#include "shell.h"
+#include "tty.h"
 
 extern void	halt();
 extern void isr21(void);
-void		kloop();
-
+void		ft_atkbd(struct ring *, u8 *);
+void		ft_tty(struct tty *, struct ring *, struct ring *);
+void		init_shell(struct shell *);
+void		shell(struct shell *, struct ring *, struct ring *);
+void		console(struct console *, struct ring *);
 
 struct ring kbd_ring;
+
+static void	welcome_screen(struct ring *ft_stdout)
+{
+	kputs(ft_stdout, "\x1b[36m");
+	kputs(ft_stdout, "       :::       ::::::::\n");
+	kputs(ft_stdout, "     :+:       :+:    :+:\n");
+	kputs(ft_stdout, "   +#+  +:+         +#+  \n");
+	kputs(ft_stdout, " +#+#+#+#+#+    +#+      \n");
+	kputs(ft_stdout, "     ###     ########.fr \n");
+	kputs(ft_stdout, "\x1b[0m");
+	kputs(ft_stdout, "\n type \"help<Enter>\"\n\n");
+	kputs(ft_stdout, "\x1b[32m prompt> \x1b[0m");
+}
+
+void	kloop()
+{
+	struct ring		events;
+	struct ring		ft_stdin;
+	struct ring		ft_stdout;
+	struct tty		tty;
+	struct shell	sh;
+	struct console	console;
+	u8				multibyte = 0;
+
+	init_ring(&events);
+	init_ring(&ft_stdin);
+	init_ring(&ft_stdout);
+	init_shell(&sh);
+	init_console(&console);
+	kmemset(&tty, '\0', sizeof(struct tty));
+	welcome_screen(&ft_stdout);
+	sti();
+	while (1) {
+		ft_atkbd(&events, &multibyte);
+		ft_tty(&tty, &events, &ft_stdin);
+		shell(&sh, &ft_stdin, &ft_stdout);
+		ft_console(&console, &ft_stdout);
+
+		cli();
+		if (kbd_ring.count == 0 && events.count == 0
+			&& ft_stdin.count == 0 && ft_stdout.count == 0) {
+			sti();
+			hlt();
+		}
+		sti();
+	};
+}
+
 
 static void	pic_remap()
 {

@@ -1,6 +1,11 @@
-#include "idt.h"
+#include "interrupts.h"
+#include "ktypes.h"
 
 extern void load_idt(void *idtr);
+void keyboard_handler_c(void);
+extern int g_interrupt;
+extern u8 inb(u16);
+extern void outb(u16, u16);
 
 static struct InterruptDescriptor32 idt[256];
 struct IDTR {
@@ -28,3 +33,10 @@ void idt_init() {
 	//call lidt
 	load_idt(&idtr);
 };
+
+void c_handler(u32 const int_no)
+{
+	if (int_no == 0x21)
+		keyboard_handler_c();   /* défini dans keyboard_handler.c */
+	outb(0x20, 0x20);
+}
