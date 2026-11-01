@@ -1,0 +1,4 @@
+-add the schedule call to the write in kstblib
+-see how to start the threads
+-try and make it work quick and dirty with globals
+-try to behave some more

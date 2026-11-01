@@ -4,6 +4,7 @@
 #include "ring_buffer.h"
 #include "io.h"
 
+void	schedule();
 
 void disable_vga_cursor()
 {
@@ -171,22 +172,25 @@ static void	fill_buffer(struct console *csl, struct ring *ft_stdout)
 	}
 }
 
-void	ft_console(struct console *csl, struct ring *ft_stdout)
+void	ft_console(struct ring *ft_stdout)
 {
+	struct console csl;
 	char	c;
 
 	while (1) {
-		if (csl->escaped == 1)
-			fill_buffer(csl, ft_stdout);
+		if (csl.escaped == 1)
+			fill_buffer(&csl, ft_stdout);
 
-		if (ft_stdout->count == 0)
-			break ;
+		if (ft_stdout->count == 0) {
+			schedule();
+			continue ;
+		}
 		c = ring_pop(ft_stdout);
 		if (!c)
 			continue ;
 		else if (c == '\x1b')
-			csl->escaped = 1;
+			csl.escaped = 1;
 		else
-			regular_console(csl, ft_stdout, c);
+			regular_console(&csl, ft_stdout, c);
 	}
 }

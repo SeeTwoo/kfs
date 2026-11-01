@@ -2,29 +2,39 @@
 #include "ring_buffer.h"
 #include "tty.h"
 
-extern const char	shift_tty_chars[];
-extern const char	tty_chars[];
+void	schedule();
 
-void	ft_tty(struct tty *tty, struct ring *events, struct ring *ft_stdin)
+const char	shift_tty_chars[];
+const char	tty_chars[];
+
+void	ft_tty(struct ring *events, struct ring *ft_stdin)
 {
-	while (events->count > 0) {
+	struct tty	tty;
+
+	while (1) {
+		if (events->count == 0) {
+			schedule();
+			continue ;
+		} else if (ft_stdin->count == 256) {
+			schedule();
+			continue ;
+		}
+
 		enum events	event = ring_pop(events);
 
 		if (!(event & 128) && event == L_SHIFT)
-			tty->l_shift = 1;
+			tty.l_shift = 1;
 		else if (event & 128 && (event & 127) == L_SHIFT)
-			tty->l_shift = 0;
+			tty.l_shift = 0;
 		else if (!(event & 128) && event == R_SHIFT)
-			tty->r_shift = 1;
+			tty.r_shift = 1;
 		else if (event & 128 && (event & 127) == R_SHIFT)
-			tty->r_shift = 0;
-
+			tty.r_shift = 0;
 		else if (!(event & 128) && event == CAPS_LOCK)
-			tty->caps_lock = tty->caps_lock == 1 ? 0 : 1;
-
+			tty.caps_lock = tty.caps_lock == 1 ? 0 : 1;
 		else if (event & 128)
 			return ;
-		else if (tty->l_shift || tty->r_shift || tty->caps_lock)
+		else if (tty.l_shift || tty.r_shift || tty.caps_lock)
 			ring_push(ft_stdin, shift_tty_chars[event]);
 		else
 			ring_push(ft_stdin, tty_chars[event]);

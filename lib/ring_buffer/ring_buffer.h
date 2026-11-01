@@ -8,10 +8,10 @@
 #define RING_MASK 255
 
 struct ring {
-	u8			buffer[RING_BUFFER_SIZE];
-	u8			read;
-	u8			write;
-	volatile u8	count;
+	u8				buffer[RING_BUFFER_SIZE];
+	u8				read;
+	u8				write;
+	volatile u32	count;
 };
 
 void	init_ring(struct ring *);

@@ -5,6 +5,8 @@
 #include "ring_buffer.h"
 #include "shell.h"
 
+void	schedule();
+
 void	init_shell(struct shell *sh)
 {
 	kmemset(sh->line, '0', LINE_SIZE);
@@ -116,9 +118,19 @@ static void	fill_line(struct shell *sh, char c, struct ring *ft_stdout)
 }
 
 
-void	shell(struct shell *sh, struct ring *ft_stdin, struct ring *ft_stdout)
+void	shell(struct ring *ft_stdin, struct ring *ft_stdout)
 {
-	while (ft_stdin->count > 0) {
+	struct shell	*sh;
+
+	while (1) {
+		if (ft_stdin->count == 0) {
+			schedule();
+			continue ;
+		} else if (ft_stdout->count == 256) {
+			schedule();
+			continue ;
+		}
+
 		char	c = ring_pop(ft_stdin);
 
 		if (!c)
