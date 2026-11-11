@@ -17,11 +17,13 @@ console draws stdout
 
 atkbd:
 
-void	ft_atkbd() {
+void	atkbd() {
 	while (1) {
 		if (ring_empty(scancodes)) {
+			kbd_drv_task->state = WAITING;
 			schedule();
 		} else if (ring_full(events)) {
+			kbd_drv_task->state = BLOCKED;
 			schedule();
 		} else {
 			consume_scancode();
