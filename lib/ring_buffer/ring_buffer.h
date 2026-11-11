@@ -3,6 +3,7 @@
 
 #include "ktypes.h"
 
+struct task;
 
 #define RING_BUFFER_SIZE 256
 #define RING_MASK 255
@@ -12,6 +13,8 @@ struct ring {
 	u8				read;
 	u8				write;
 	volatile u32	count;
+	struct task		*provider;
+	struct task		*user;
 };
 
 void	init_ring(struct ring *);
