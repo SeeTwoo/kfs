@@ -65,3 +65,8 @@ void	console {
 		}
 	}
 }
+
+
+
+
+if we are in the scheduler and we are about
