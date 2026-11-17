@@ -17,8 +17,8 @@ struct ring {
 	struct task		*user;
 };
 
-void	init_ring(struct ring *);
-void	ring_push(struct ring *, u8);
-u8		ring_pop(struct ring *);
+void	init_ring(struct ring *, struct task *, struct task *);
+i32		ring_push(struct ring *, u8);
+i32		ring_pop(struct ring *, u8);
 
 #endif

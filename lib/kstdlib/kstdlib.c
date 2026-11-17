@@ -61,10 +61,15 @@ u32	kwrite(struct ring *out, char const *s, u32 n)
 {
 	u32	ret = 0;
 
-	while (*s && ret < n && out->count < RING_BUFFER_SIZE) {
-		ring_push(out, *s);
-		s++;
-		ret++;
+	while (ret < n) {
+		i32 err = ring_push(out, *s);
+
+		if (err == 0) {
+			s++;
+			ret++;
+		} else if (err == -1) {
+			schedule();
+		}
 	}
 	return ret;
 }

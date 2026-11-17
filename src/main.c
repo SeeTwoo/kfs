@@ -20,7 +20,7 @@ struct task	*current_task;
 
 struct task ft_atkbd_task;
 struct task tty_task;
-struct task shell_task
+struct task shell_task;
 struct task console_task;
 struct task	idle_task;
 
@@ -45,19 +45,16 @@ void	idle(void)
 
 void	init_tasks(void)
 {
-	ft_atkbd_task->next = tty;
-	tty_task->next = shell;
-	shell_task->next = console;
-	console_task->next = idle_task;
-	idle_task->next = ft_atkbd_task
+	ft_atkbd_task->next = &tty_task;
+	tty_task->next = &shell_task;
+	shell_task->next = &console_task;
+	console_task->next = &ft_atkbd_task;
 
-	idle_task->stack_base = 20480;
 	ft_atkbd_task->stack_base = 16384;
 	tty_task->stack_base = 12288;
 	shell_task->stack_base = 8192;
 	console_task->next = 4096;
 
-	idle_task->esp = 20480;
 	ft_atkbd_task->esp = 16384;
 	tty_task->esp = 12288;
 	shell_task->esp = 8192;
@@ -90,9 +87,14 @@ void	schedule()
 			break ;
 		current_task = current_task->next;
 	}
-	if (waiting)
-		switch_to(idle)
-	switch_to(previous_esp, current_task->esp);
+	if (temp->state == READY) {
+		switch_to(previous_esp, temp->esp);
+		return ;
+	}
+	if (waiting) {
+		switch_to(previous_esp, idle->esp);
+		return ;
+	}
 }
 
 void kmain(void)
