@@ -1,32 +1,41 @@
-#include "console.h"
+#include "inline_asm.h"
 #include "interrupts.h"
 #include "io.h"
 #include "kstdlib.h"
 #include "ktypes.h"
 #include "panic.h"
 #include "ring_buffer.h"
-#include "shell.h"
 #include "task.h"
-#include "tty.h"
 
 extern void isr21(void);
-void		ft_atkbd(struct ring *, u8 *);
-void		ft_tty(struct tty *, struct ring *, struct ring *);
-void		shell(struct shell *, struct ring *, struct ring *);
-void		console(struct console *, struct ring *);
+void		ft_atkbd();
+void		ft_tty();
+void		shell();
+void		console();
 
-struct ring kbd_ring;
+void		switch_to(u32 *, u32 *);
+void		init_task(struct task *, void (*)(void));
+
 struct task	*current_task;
+
+struct task	boot_idle_task;
 
 struct task ft_atkbd_task;
 struct task tty_task;
 struct task shell_task;
 struct task console_task;
-struct task	idle_task;
 
+struct task	dummy_type_task;
+
+struct ring kbd_ring;
 struct ring	events;
 struct ring	ft_stdin;
 struct ring	ft_stdout;
+
+u8	ft_atkbd_stack[4096] __attribute__((aligned(16)));
+u8	tty_stack[4096] __attribute__((aligned(16)));
+u8	shell_stack[4096] __attribute__((aligned(16)));
+u8	console_stack[4096] __attribute__((aligned(16)));
 
 static void	pic_remap()
 {
@@ -37,28 +46,30 @@ static void	pic_remap()
 	outb(0x21, 0xFD); outb(0xA1, 0xFF);
 }
 
-void	idle(void)
-{
-	hlt();
-	schedule();
-}
-
 void	init_tasks(void)
 {
-	ft_atkbd_task->next = &tty_task;
-	tty_task->next = &shell_task;
-	shell_task->next = &console_task;
-	console_task->next = &ft_atkbd_task;
+	ft_atkbd_task.next = &tty_task;
+	ft_atkbd_task.stack_base = 16384;
+	ft_atkbd_task.esp = 16384;
+	init_task(&ft_atkbd_task, ft_atkbd);
 
-	ft_atkbd_task->stack_base = 16384;
-	tty_task->stack_base = 12288;
-	shell_task->stack_base = 8192;
-	console_task->next = 4096;
+	tty_task.next = &shell_task;
+	tty_task.stack_base = 12288;
+	tty_task.esp = 12288;
+	init_task(&tty_task, ft_tty);
 
-	ft_atkbd_task->esp = 16384;
-	tty_task->esp = 12288;
-	shell_task->esp = 8192;
-	console_task->esp = 4096;
+	shell_task.next = &console_task;
+	shell_task.stack_base = 8192;
+	shell_task.esp = 8192;
+	init_task(&shell_task, shell);
+
+	console_task.next = &ft_atkbd_task;
+	console_task.stack_base = 4096;
+	console_task.esp = 4096;
+	init_task(&console_task, console);
+
+	boot_idle_task.stack_base =
+	console_task.esp
 }
 
 static void	welcome_screen(struct ring *ft_stdout)
@@ -83,16 +94,16 @@ void	schedule()
 	while (temp->state != READY) {
 		if (temp->state != WAITING)
 			waiting = 0;
-		if (temp = current_task)
+		if (temp == current_task)
 			break ;
 		current_task = current_task->next;
 	}
 	if (temp->state == READY) {
-		switch_to(previous_esp, temp->esp);
+		switch_to((u32 *)previous_esp, (u32 *)temp->esp);
 		return ;
 	}
 	if (waiting) {
-		switch_to(previous_esp, idle->esp);
+		switch_to((u32 *)previous_esp, (u32 *)boot_idle_task.esp);
 		return ;
 	}
 }
@@ -109,7 +120,10 @@ void kmain(void)
 	init_ring(&ft_stdin, &tty_task, &shell_task);
 	init_ring(&ft_stdout, &shell_task, &console_task);
 	welcome_screen(&ft_stdout);
-	schedule();
+	while (1) {
+		schedule();
+		hlt();
+	}
 	panic("the cpu escaped the scheduler (play the lottery) (T_T) ");
 }
 

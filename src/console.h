@@ -21,7 +21,7 @@ struct console {
 	struct buffer	buf;
 };
 
-void	ft_console(struct console *, struct ring *);
+void	ft_console();
 void	init_console(struct console *);
 void	move_cursor(struct console *, u8, u8);
 void	print_string(struct console *, char const *);

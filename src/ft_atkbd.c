@@ -6,7 +6,9 @@
 void	schedule();
 
 extern struct ring	kbd_ring;
+extern struct ring	events;
 extern struct task	ft_atkbd_task;
+
 const enum events	ps2_set[];
 const enum events	extended_ps2_set[];
 
@@ -17,7 +19,7 @@ void	keyboard_handler_c(void)
 
 // TODO replace raw size with macros, even better have ring_empty, ring_full methods
 // 4 indents ugh
-void	ft_atkbd(struct ring *events)
+void	ft_atkbd()
 {
 	u8	multibyte = 0;
 
@@ -34,12 +36,12 @@ void	ft_atkbd(struct ring *events)
 		} else if (multibyte) {
 			if (ft_atkbd_task.state == BLOCKED)
 				schedule();
-			ring_push(events, (u8)(extended_ps2_set[index] | is_release));
+			ring_push(&events, (u8)(extended_ps2_set[index] | is_release));
 			multibyte = 0;
 		} else {
 			if (ft_atkbd_task.state == BLOCKED)
 				schedule();
-			ring_push(events, ((u8)ps2_set[index] | is_release));
+			ring_push(&events, ((u8)ps2_set[index] | is_release));
 		}
 	}
 }

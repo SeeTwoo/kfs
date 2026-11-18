@@ -1,8 +1,13 @@
 #include "console.h"
+#include "io.h"
 #include "kstdlib.h"
 #include "ktypes.h"
 #include "ring_buffer.h"
-#include "io.h"
+#include "task.h"
+
+extern struct ring	ft_stdout;
+
+extern struct task	console_task;
 
 void	schedule();
 
@@ -23,7 +28,7 @@ void enable_vga_cursor(u8 cursor_start, u8 cursor_end)
 
 void update_vga_cursor(u8 x, u8 y)
 {
-	u16 pos = y * SCREEN_WIDTH+ x;
+	u16 pos = y * SCREEN_WIDTH + x;
 
 	outb(0x3D4, 0x0F);
 	outb(0x3D5, (u8)(pos & 0xFF));
@@ -157,8 +162,12 @@ static void	do_escape_code(struct console *csl)
 
 static void	fill_buffer(struct console *csl, struct ring *ft_stdout)
 {
-	while (ft_stdout->count > 0) {
-		char	c = ring_pop(ft_stdout);
+	while (1) {
+		while (console_task.state == WAITING)
+			schedule();
+
+		char	c;
+		i32		err = ring_pop(ft_stdout, (u8 *)&c);
 
 		if (!c)
 			continue ;
@@ -172,25 +181,24 @@ static void	fill_buffer(struct console *csl, struct ring *ft_stdout)
 	}
 }
 
-void	ft_console(struct ring *ft_stdout)
+void	ft_console()
 {
 	struct console csl;
 	char	c;
 
 	while (1) {
 		if (csl.escaped == 1)
-			fill_buffer(&csl, ft_stdout);
+			fill_buffer(&csl, &ft_stdout);
 
-		if (ft_stdout->count == 0) {
+		while (console_task.state == WAITING)
 			schedule();
-			continue ;
-		}
-		c = ring_pop(ft_stdout);
+		i32	err = ring_pop(&ft_stdout, (u8 *)&c);
+
 		if (!c)
 			continue ;
 		else if (c == '\x1b')
 			csl.escaped = 1;
 		else
-			regular_console(&csl, ft_stdout, c);
+			regular_console(&csl, &ft_stdout, c);
 	}
 }

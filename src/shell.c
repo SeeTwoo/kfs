@@ -4,6 +4,12 @@
 #include "panic.h"
 #include "ring_buffer.h"
 #include "shell.h"
+#include "task.h"
+
+extern struct ring	ft_stdin;
+extern struct ring	ft_stdout;
+
+extern struct task	shell_task;
 
 void	schedule();
 
@@ -118,18 +124,13 @@ static void	fill_line(struct shell *sh, char c, struct ring *ft_stdout)
 }
 
 
-void	shell(struct ring *ft_stdin, struct ring *ft_stdout)
+void	shell()
 {
 	struct shell	*sh;
 
 	while (1) {
-		if (ft_stdin->count == 0) {
+		while (shell_task.state == WAITING)
 			schedule();
-			continue ;
-		} else if (ft_stdout->count == 256) {
-			schedule();
-			continue ;
-		}
 
 		char	c = ring_pop(ft_stdin);
 
@@ -142,4 +143,5 @@ void	shell(struct ring *ft_stdin, struct ring *ft_stdout)
 		else if (sh->current < (LINE_SIZE - 2))
 			fill_line(sh, c, ft_stdout);
 	}
+	panic("got out of the shell loop");
 }

@@ -1,43 +1,56 @@
 #include "events.h"
 #include "ring_buffer.h"
+#include "task.h"
 #include "tty.h"
 
 void	schedule();
 
+extern struct task	tty_task;
+extern struct ring	ft_stdin;
+extern struct ring	events;
+
 const char	shift_tty_chars[];
 const char	tty_chars[];
 
-void	ft_tty(struct ring *events, struct ring *ft_stdin)
+void	send_character(const char *set, enum events event)
+{
+	while (tty_task.state == BLOCKED)
+		schedule();
+	ring_push(&ft_stdin, set[event]);
+}
+
+void	consume_event(struct tty *tty, enum events event)
+{
+	if (!(event & 128) && event == L_SHIFT)
+		tty->l_shift = 1;
+	else if (event & 128 && (event & 127) == L_SHIFT)
+		tty->l_shift = 0;
+	else if (!(event & 128) && event == R_SHIFT)
+		tty->r_shift = 1;
+	else if (event & 128 && (event & 127) == R_SHIFT)
+		tty->r_shift = 0;
+	else if (!(event & 128) && event == CAPS_LOCK)
+		tty->caps_lock = tty->caps_lock == 1 ? 0 : 1;
+	else if (event & 128)
+		return ;
+	else if (tty->l_shift || tty->r_shift || tty->caps_lock)
+		send_character(shift_tty_chars, event);
+	else
+		send_character(tty_chars, event);
+}
+
+void	ft_tty()
 {
 	struct tty	tty;
 
 	while (1) {
-		if (events->count == 0) {
+		while (tty_task.state == WAITING)
 			schedule();
-			continue ;
-		} else if (ft_stdin->count == 256) {
-			schedule();
-			continue ;
-		}
 
-		enum events	event = ring_pop(events);
+		enum events	event;
+		i32			err = ring_pop(&events, (u8 *)&event);
 
-		if (!(event & 128) && event == L_SHIFT)
-			tty.l_shift = 1;
-		else if (event & 128 && (event & 127) == L_SHIFT)
-			tty.l_shift = 0;
-		else if (!(event & 128) && event == R_SHIFT)
-			tty.r_shift = 1;
-		else if (event & 128 && (event & 127) == R_SHIFT)
-			tty.r_shift = 0;
-		else if (!(event & 128) && event == CAPS_LOCK)
-			tty.caps_lock = tty.caps_lock == 1 ? 0 : 1;
-		else if (event & 128)
-			return ;
-		else if (tty.l_shift || tty.r_shift || tty.caps_lock)
-			ring_push(ft_stdin, shift_tty_chars[event]);
-		else
-			ring_push(ft_stdin, tty_chars[event]);
+		consume_event(&tty, event);
 	}
 }
 
