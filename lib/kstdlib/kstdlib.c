@@ -3,6 +3,8 @@
 #include "ring_buffer.h"
 #include <stdarg.h>
 
+void	schedule();
+
 ///
 u8 kisalpha(char c)
 {

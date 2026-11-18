@@ -44,11 +44,11 @@ LDFLAGS	:= -m elf_i386 -T $(LINKER_SCR)
 # source and obj files
 C_SOURCES := \
     $(addprefix $(SRC_DIR)/,\
-	main.c panic.c interrupts.c ft_atkbd.c console.c shell.c tty.c) \
+	main.c panic.c interrupts.c ft_atkbd.c console.c shell.c task.c tty.c) \
     $(LIB_KSTDLIB_DIR)/kstdlib.c \
     $(LIB_RING_BUFFER_DIR)/ring_buffer.c
 
-ASM_SOURCES := $(addprefix $(ASM_DIR)/,boot.asm halt.asm io.asm isr.asm)
+ASM_SOURCES := $(addprefix $(ASM_DIR)/,boot.asm halt.asm io.asm isr.asm switch.asm)
 
 # convert source paths to object paths
 OBJS := \

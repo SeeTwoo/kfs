@@ -11,7 +11,7 @@ extern void isr21(void);
 void		ft_atkbd();
 void		ft_tty();
 void		shell();
-void		console();
+void		ft_console();
 
 void		switch_to(u32 *, u32 *);
 void		init_task(struct task *, void (*)(void));
@@ -49,27 +49,25 @@ static void	pic_remap()
 void	init_tasks(void)
 {
 	ft_atkbd_task.next = &tty_task;
-	ft_atkbd_task.stack_base = 16384;
-	ft_atkbd_task.esp = 16384;
+	ft_atkbd_task.stack_base = (u32)ft_atkbd_stack;
+	ft_atkbd_task.state = WAITING;
 	init_task(&ft_atkbd_task, ft_atkbd);
 
 	tty_task.next = &shell_task;
-	tty_task.stack_base = 12288;
-	tty_task.esp = 12288;
+	tty_task.stack_base = (u32)tty_stack;
+	ft_atkbd_task.state = WAITING;
 	init_task(&tty_task, ft_tty);
 
 	shell_task.next = &console_task;
-	shell_task.stack_base = 8192;
-	shell_task.esp = 8192;
+	shell_task.stack_base = (u32)shell_stack;
+	ft_atkbd_task.state = WAITING;
 	init_task(&shell_task, shell);
 
 	console_task.next = &ft_atkbd_task;
-	console_task.stack_base = 4096;
-	console_task.esp = 4096;
-	init_task(&console_task, console);
+	console_task.stack_base = (u32)console_stack;
+	ft_atkbd_task.state = WAITING;
+	init_task(&console_task, ft_console);
 
-	boot_idle_task.stack_base =
-	console_task.esp
 }
 
 static void	welcome_screen(struct ring *ft_stdout)
@@ -87,7 +85,7 @@ static void	welcome_screen(struct ring *ft_stdout)
 
 void	schedule()
 {
-	u32			previous_esp = current_task->esp;
+	u32			*previous_esp = &(current_task->esp);
 	struct task	*temp = current_task->next;
 	u8			waiting = 1;
 
@@ -96,14 +94,14 @@ void	schedule()
 			waiting = 0;
 		if (temp == current_task)
 			break ;
-		current_task = current_task->next;
+		temp = temp->next;
 	}
 	if (temp->state == READY) {
 		switch_to((u32 *)previous_esp, (u32 *)temp->esp);
 		return ;
 	}
 	if (waiting) {
-		switch_to((u32 *)previous_esp, (u32 *)boot_idle_task.esp);
+		switch_to((u32 *)previous_esp, (u32 *)&(boot_idle_task.esp));
 		return ;
 	}
 }
@@ -112,10 +110,10 @@ void kmain(void)
 {
 	pic_remap();
 	idt_init();
-	init_ring(&kbd_ring);
 	set_idt_gate(0x21, (u32)isr21);
 
 	init_tasks();
+	init_ring(&kbd_ring, &dummy_type_task, &ft_atkbd_task);
 	init_ring(&events, &ft_atkbd_task, &tty_task);
 	init_ring(&ft_stdin, &tty_task, &shell_task);
 	init_ring(&ft_stdout, &shell_task, &console_task);

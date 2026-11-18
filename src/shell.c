@@ -132,16 +132,17 @@ void	shell()
 		while (shell_task.state == WAITING)
 			schedule();
 
-		char	c = ring_pop(ft_stdin);
+		char	c;
+		i32		err = ring_pop(&ft_stdin, (u8 *)&c);
 
 		if (!c)
 			return ;
 		else if (c == '\n')
-			execute_line(sh, ft_stdout);
+			execute_line(sh, &ft_stdout);
 		else if (c == '\b')
-			backspace(sh, ft_stdout);
+			backspace(sh, &ft_stdout);
 		else if (sh->current < (LINE_SIZE - 2))
-			fill_line(sh, c, ft_stdout);
+			fill_line(sh, c, &ft_stdout);
 	}
 	panic("got out of the shell loop");
 }

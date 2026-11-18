@@ -32,7 +32,7 @@ void	ft_atkbd()
 		u8	index = scancode & 0x7F;
 
 		if (scancode == 0xE0) {
-			*multibyte = 1;
+			multibyte = 1;
 		} else if (multibyte) {
 			if (ft_atkbd_task.state == BLOCKED)
 				schedule();
