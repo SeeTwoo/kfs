@@ -55,17 +55,17 @@ void	init_tasks(void)
 
 	tty_task.next = &shell_task;
 	tty_task.stack_base = (u32)tty_stack;
-	ft_atkbd_task.state = WAITING;
+	tty_task.state = WAITING;
 	init_task(&tty_task, ft_tty);
 
 	shell_task.next = &console_task;
 	shell_task.stack_base = (u32)shell_stack;
-	ft_atkbd_task.state = WAITING;
+	shell_task.state = WAITING;
 	init_task(&shell_task, shell);
 
 	console_task.next = &ft_atkbd_task;
 	console_task.stack_base = (u32)console_stack;
-	ft_atkbd_task.state = WAITING;
+	console_task.state = WAITING;
 	init_task(&console_task, ft_console);
 
 }
@@ -106,9 +106,13 @@ void	schedule()
 
 	if (everyone_is_waiting() == 0)
 		switch_to((u32 *)previous_esp, (u32 *)&(boot_idle_task.esp));
-	while (temp->state != READY)
+	while (temp != current_task) {
+		if (temp->state == READY) {
+			switch_to((u32 *)previous_esp, (u32 *)temp->esp);
+		}
 		temp = temp->next;
-	switch_to((u32 *)previous_esp, (u32 *)temp->esp);
+	}
+	panic("could not schedule shit");
 }
 
 void kmain(void)
