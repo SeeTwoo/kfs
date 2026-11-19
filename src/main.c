@@ -83,27 +83,32 @@ static void	welcome_screen(struct ring *ft_stdout)
 	kputs(ft_stdout, "\x1b[32m prompt> \x1b[0m");
 }
 
+i32	everyone_is_waiting()
+{
+	struct task *temp = current_task;
+	u8			count = 0;
+
+	while (1) {
+		if (temp->state != WAITING)
+			return 1;
+		if (count == 4)
+			break ;
+		temp = temp->next;
+		count++;
+	}
+	return 0;
+}
+
 void	schedule()
 {
 	u32			*previous_esp = &(current_task->esp);
 	struct task	*temp = current_task->next;
-	u8			waiting = 1;
 
-	while (temp->state != READY) {
-		if (temp->state != WAITING)
-			waiting = 0;
-		if (temp == current_task)
-			break ;
-		temp = temp->next;
-	}
-	if (temp->state == READY) {
-		switch_to((u32 *)previous_esp, (u32 *)temp->esp);
-		return ;
-	}
-	if (waiting) {
+	if (everyone_is_waiting() == 0)
 		switch_to((u32 *)previous_esp, (u32 *)&(boot_idle_task.esp));
-		return ;
-	}
+	while (temp->state != READY)
+		temp = temp->next;
+	switch_to((u32 *)previous_esp, (u32 *)temp->esp);
 }
 
 void kmain(void)
@@ -112,12 +117,14 @@ void kmain(void)
 	idt_init();
 	set_idt_gate(0x21, (u32)isr21);
 
+	current_task = &ft_atkbd_task;
 	init_tasks();
 	init_ring(&kbd_ring, &dummy_type_task, &ft_atkbd_task);
 	init_ring(&events, &ft_atkbd_task, &tty_task);
 	init_ring(&ft_stdin, &tty_task, &shell_task);
 	init_ring(&ft_stdout, &shell_task, &console_task);
 	welcome_screen(&ft_stdout);
+	sti();
 	while (1) {
 		schedule();
 		hlt();
