@@ -74,6 +74,8 @@ void	init_tasks(void)
 
 static void	welcome_screen(struct ring *ft_stdout)
 {
+	kputs(ft_stdout, "hey\n");
+	/*
 	kputs(ft_stdout, "\x1b[36m");
 	kputs(ft_stdout, "       :::       ::::::::\n");
 	kputs(ft_stdout, "     :+:       :+:    :+:\n");
@@ -83,6 +85,7 @@ static void	welcome_screen(struct ring *ft_stdout)
 	kputs(ft_stdout, "\x1b[0m");
 	kputs(ft_stdout, "\n type \"help<Enter>\"\n\n");
 	kputs(ft_stdout, "\x1b[32m prompt> \x1b[0m");
+	*/
 }
 
 void	schedule()
@@ -104,8 +107,7 @@ idle:
 
 void	idle()
 {
-	while (1)
-		hlt();
+	hlt();
 }
 
 void kmain(void)

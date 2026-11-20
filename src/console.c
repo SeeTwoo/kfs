@@ -191,7 +191,7 @@ void	ft_console()
 		if (csl.escaped == 1)
 			fill_buffer(&csl, &ft_stdout);
 
-		while (console_task.state == WAITING)
+		if (console_task.state == WAITING)
 			schedule();
 		i32	err = ring_pop(&ft_stdout, (u8 *)&c);
 
