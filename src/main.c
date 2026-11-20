@@ -46,6 +46,42 @@ static void	pic_remap()
 	outb(0x21, 0xFD); outb(0xA1, 0xFF);
 }
 
+void	schedule()
+{
+	u32			*previous_esp = &(current_task->esp);
+	struct task	*temp;
+
+/*
+	if (current_task == &boot_idle_task)
+		temp = &ft_atkbd_task;
+	else
+		temp = current_task->next;
+*/
+	temp = &ft_atkbd_task;
+
+	for (u8 i = 0; i < 4; i++) {
+		if (temp->state == READY) {
+			current_task = temp;
+			switch_to((u32 *)previous_esp, (u32 *)temp->esp);
+			return ;
+		}
+		temp = temp->next;
+	}
+	current_task = &boot_idle_task;
+	switch_to((u32 *)previous_esp, (u32 *)&(boot_idle_task.esp));
+}
+
+void	idle()
+{
+	/*
+	while (1) {
+		hlt();
+		schedule();
+	}
+	*/
+	hlt();
+}
+
 void	init_tasks(void)
 {
 	ft_atkbd_task.next = &tty_task;
@@ -68,7 +104,12 @@ void	init_tasks(void)
 	console_task.state = WAITING;
 	init_task(&console_task, ft_console);
 
-	boot_idle_task.next = 0;
+	/*
+	boot_idle_task.next = &ft_atkbd_task;
+	boot_idle_task.stack_base = (u32)idle_stack;
+	boot_idle_task.state = READY;
+	init_task(&boot_idle_task, idle);
+	*/
 }
 
 
@@ -88,36 +129,14 @@ static void	welcome_screen(struct ring *ft_stdout)
 	*/
 }
 
-void	schedule()
-{
-	u32			*previous_esp = &(current_task->esp);
-	struct task	*temp = current_task->next;
-
-	while (temp != current_task) {
-		if (temp->state == READY) {
-			current_task = temp;
-			switch_to((u32 *)previous_esp, (u32 *)temp->esp);
-			return ;
-		}
-		temp = temp->next;
-	}
-idle:
-	switch_to((u32 *)previous_esp, (u32 *)&(boot_idle_task.esp));
-}
-
-void	idle()
-{
-	hlt();
-}
-
 void kmain(void)
 {
 	pic_remap();
 	idt_init();
 	set_idt_gate(0x21, (u32)isr21);
 
-	current_task = &ft_atkbd_task;
 	init_tasks();
+	current_task = &boot_idle_task;
 	init_ring(&kbd_ring, &dummy_type_task, &ft_atkbd_task);
 	init_ring(&events, &ft_atkbd_task, &tty_task);
 	init_ring(&ft_stdin, &tty_task, &shell_task);

@@ -118,7 +118,7 @@ run: $(ISO)
 	qemu-system-i386 -cdrom $(ISO)
 
 run-debug: $(ISO)
-	qemu-system-i386 -s -S -cdrom $(ISO)
+	qemu-system-i386 -s -S -cdrom $(ISO) -no-reboot -no-shutdown -d int,cpu_reset
 
 release: fclean
 	$(MAKE) CFLAGS="$(CRELEASEFLAGS)" ASFLAGS="$(ASMRELEASEFLAGS)" $(KERNEL_BIN)

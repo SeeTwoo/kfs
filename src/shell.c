@@ -126,8 +126,9 @@ static void	fill_line(struct shell *sh, char c, struct ring *ft_stdout)
 
 void	shell()
 {
-	struct shell	*sh;
+	struct shell	sh;
 
+	init_shell(&sh);
 	while (1) {
 		while (shell_task.state == WAITING)
 			schedule();
@@ -138,11 +139,11 @@ void	shell()
 		if (!c)
 			return ;
 		else if (c == '\n')
-			execute_line(sh, &ft_stdout);
+			execute_line(&sh, &ft_stdout);
 		else if (c == '\b')
-			backspace(sh, &ft_stdout);
-		else if (sh->current < (LINE_SIZE - 2))
-			fill_line(sh, c, &ft_stdout);
+			backspace(&sh, &ft_stdout);
+		else if (sh.current < (LINE_SIZE - 2))
+			fill_line(&sh, c, &ft_stdout);
 	}
 	panic("got out of the shell loop");
 }
