@@ -37,6 +37,7 @@ u8	tty_stack[4096] __attribute__((aligned(16)));
 u8	shell_stack[4096] __attribute__((aligned(16)));
 u8	console_stack[4096] __attribute__((aligned(16)));
 
+
 static void	pic_remap()
 {
 	outb(0x20, 0x11); outb(0xA0, 0x11);
@@ -88,23 +89,24 @@ static void	welcome_screen(struct ring *ft_stdout)
 void	schedule()
 {
 	u32			*previous_esp = &(current_task->esp);
-	struct task	*temp = current_task->next;
+	struct task	*temp = &ft_atkbd_task;
+	struct task	*start = &ft_atkbd_task;
 
-	while (temp != current_task) {
+	do {
 		if (temp->state == READY) {
 			current_task = temp;
 			switch_to((u32 *)previous_esp, (u32 *)temp->esp);
 			return ;
 		}
 		temp = temp->next;
-	}
-idle:
-	switch_to((u32 *)previous_esp, (u32 *)&(boot_idle_task.esp));
+	} while (temp != start);
+
+	current_task = &boot_idle_task;
+	switch_to((u32 *)previous_esp, (u32 *)boot_idle_task.esp);
 }
 
 void	idle()
 {
-	while (1)
 		hlt();
 }
 
@@ -114,7 +116,7 @@ void kmain(void)
 	idt_init();
 	set_idt_gate(0x21, (u32)isr21);
 
-	current_task = &ft_atkbd_task;
+	current_task = &boot_idle_task;
 	init_tasks();
 	init_ring(&kbd_ring, &dummy_type_task, &ft_atkbd_task);
 	init_ring(&events, &ft_atkbd_task, &tty_task);

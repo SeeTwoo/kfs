@@ -186,7 +186,7 @@ void	ft_console()
 	struct console csl;
 	char	c;
 
-	screen_clear(&csl);
+	init_console(&csl);
 	while (1) {
 		if (csl.escaped == 1)
 			fill_buffer(&csl, &ft_stdout);

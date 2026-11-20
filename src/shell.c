@@ -128,6 +128,7 @@ void	shell()
 {
 	struct shell	*sh;
 
+	init_shell(sh);
 	while (1) {
 		while (shell_task.state == WAITING)
 			schedule();

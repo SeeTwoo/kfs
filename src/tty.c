@@ -16,7 +16,9 @@ void	send_character(const char *set, enum events event)
 {
 	while (tty_task.state == BLOCKED)
 		schedule();
-	ring_push(&ft_stdin, set[event]);
+	char ch = set[event];
+	if (ch)
+		ring_push(&ft_stdin, set[event]);
 }
 
 void	consume_event(struct tty *tty, enum events event)
