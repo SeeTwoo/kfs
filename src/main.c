@@ -68,7 +68,9 @@ void	init_tasks(void)
 	console_task.state = WAITING;
 	init_task(&console_task, ft_console);
 
+	boot_idle_task.next = 0;
 }
+
 
 static void	welcome_screen(struct ring *ft_stdout)
 {
@@ -83,36 +85,27 @@ static void	welcome_screen(struct ring *ft_stdout)
 	kputs(ft_stdout, "\x1b[32m prompt> \x1b[0m");
 }
 
-i32	everyone_is_waiting()
-{
-	struct task *temp = current_task;
-	u8			count = 0;
-
-	while (1) {
-		if (temp->state != WAITING)
-			return 1;
-		if (count == 4)
-			break ;
-		temp = temp->next;
-		count++;
-	}
-	return 0;
-}
-
 void	schedule()
 {
 	u32			*previous_esp = &(current_task->esp);
 	struct task	*temp = current_task->next;
 
-	if (everyone_is_waiting() == 0)
-		switch_to((u32 *)previous_esp, (u32 *)&(boot_idle_task.esp));
 	while (temp != current_task) {
 		if (temp->state == READY) {
+			current_task = temp;
 			switch_to((u32 *)previous_esp, (u32 *)temp->esp);
+			return ;
 		}
 		temp = temp->next;
 	}
-	panic("could not schedule shit");
+idle:
+	switch_to((u32 *)previous_esp, (u32 *)&(boot_idle_task.esp));
+}
+
+void	idle()
+{
+	while (1)
+		hlt();
 }
 
 void kmain(void)
@@ -131,7 +124,7 @@ void kmain(void)
 	sti();
 	while (1) {
 		schedule();
-		hlt();
+		idle();
 	}
 	panic("the cpu escaped the scheduler (play the lottery) (T_T) ");
 }
