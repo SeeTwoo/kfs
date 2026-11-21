@@ -28,7 +28,7 @@ static void	shutdown()
 static void	help(struct ring *ft_stdout)
 {
 	kputs(ft_stdout, " hello !\n");
-	kputs(ft_stdout, " this kernel is VERY limited but here is stuff you can try :\n");
+	kputs(ft_stdout, " this kernel is limited but here is stuff you can try :\n");
 	kputs(ft_stdout, "     -help\n");
 	kputs(ft_stdout, "     -shutdown\n");
 	kputs(ft_stdout, "     -panic\n");
