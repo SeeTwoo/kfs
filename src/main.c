@@ -37,7 +37,6 @@ u8	tty_stack[4096] __attribute__((aligned(16)));
 u8	shell_stack[4096] __attribute__((aligned(16)));
 u8	console_stack[4096] __attribute__((aligned(16)));
 
-
 static void	pic_remap()
 {
 	outb(0x20, 0x11); outb(0xA0, 0x11);
@@ -72,7 +71,6 @@ void	init_tasks(void)
 	boot_idle_task.next = 0;
 }
 
-
 static void	welcome_screen(struct ring *ft_stdout)
 {
 	kputs(ft_stdout, "\x1b[36m");
@@ -100,14 +98,8 @@ void	schedule()
 		}
 		temp = temp->next;
 	} while (temp != start);
-
 	current_task = &boot_idle_task;
 	switch_to((u32 *)previous_esp, (u32 *)boot_idle_task.esp);
-}
-
-void	idle()
-{
-		hlt();
 }
 
 void kmain(void)
@@ -126,7 +118,7 @@ void kmain(void)
 	sti();
 	while (1) {
 		schedule();
-		idle();
+		hlt();
 	}
 	panic("the cpu escaped the scheduler (play the lottery) (T_T) ");
 }
