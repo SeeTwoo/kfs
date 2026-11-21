@@ -14,7 +14,7 @@ void		shell();
 void		ft_console();
 
 void		switch_to(u32 *, u32 *);
-void		init_task(struct task *, void (*)(void));
+void		init_task(struct task *, struct task *, u32, void (*)(void));
 
 struct task	*current_task;
 
@@ -46,29 +46,27 @@ static void	pic_remap()
 	outb(0x21, 0xFD); outb(0xA1, 0xFF);
 }
 
+void	init_task(struct task *t, struct task *next, u32 stack_base, void (*entry_function)(void))
+{
+	t->stack_base = stack_base;
+	u32	*stack = (u32*)(t->stack_base + 4096);
+
+	*(--stack) = (u32)entry_function;
+	*(--stack) = 0;
+	*(--stack) = 0;
+	*(--stack) = 0;
+	*(--stack) = 0;
+	t->esp = (u32)stack;
+	t->state = WAITING;
+	t->next = next;
+}
+
 void	init_tasks(void)
 {
-	ft_atkbd_task.next = &tty_task;
-	ft_atkbd_task.stack_base = (u32)ft_atkbd_stack;
-	ft_atkbd_task.state = WAITING;
-	init_task(&ft_atkbd_task, ft_atkbd);
-
-	tty_task.next = &shell_task;
-	tty_task.stack_base = (u32)tty_stack;
-	tty_task.state = WAITING;
-	init_task(&tty_task, ft_tty);
-
-	shell_task.next = &console_task;
-	shell_task.stack_base = (u32)shell_stack;
-	shell_task.state = WAITING;
-	init_task(&shell_task, shell);
-
-	console_task.next = &ft_atkbd_task;
-	console_task.stack_base = (u32)console_stack;
-	console_task.state = WAITING;
-	init_task(&console_task, ft_console);
-
-	boot_idle_task.next = 0;
+	init_task(&ft_atkbd_task, &tty_task, (u32)ft_atkbd_stack, ft_atkbd);
+	init_task(&tty_task, &shell_task, (u32)tty_stack, ft_tty);
+	init_task(&shell_task, &console_task, (u32)shell_stack, shell);
+	init_task(&console_task, &ft_atkbd_task, (u32)console_stack, ft_console);
 }
 
 static void	welcome_screen(struct ring *ft_stdout)
