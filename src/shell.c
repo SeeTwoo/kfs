@@ -11,8 +11,6 @@ extern struct ring	ft_stdout;
 
 extern struct task	shell_task;
 
-void	schedule();
-
 void	init_shell(struct shell *sh)
 {
 	kmemset(sh->line, '0', LINE_SIZE);
@@ -130,9 +128,6 @@ void	shell()
 
 	init_shell(sh);
 	while (1) {
-		while (shell_task.state == WAITING)
-			schedule();
-
 		char	c;
 		i32		err = ring_pop(&ft_stdin, (u8 *)&c);
 

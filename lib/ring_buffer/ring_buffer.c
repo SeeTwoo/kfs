@@ -3,6 +3,8 @@
 #include "ring_buffer.h"
 #include "task.h"
 
+void	schedule();
+
 void	init_ring(struct ring *ring, struct task *provider, struct task *user)
 {
 	kmemset(ring, 0, sizeof(struct ring));
@@ -10,26 +12,11 @@ void	init_ring(struct ring *ring, struct task *provider, struct task *user)
 	ring->user = user;
 }
 
-u8	ring_is_full(struct ring *ring)
-{
-	return ring->count == RING_BUFFER_SIZE;
-}
-
-u8	ring_is_empty(struct ring *ring)
-{
-	return ring->count == 0;
-}
-
-u32	get_ring_count(struct ring *ring)
-{
-	return ring->count;
-}
-
 //may need a cli and sti
 i32	ring_push(struct ring *ring, u8 value)
 {
 	if (ring->count == RING_BUFFER_SIZE)
-		return -1;
+		schedule();
 	ring->buffer[ring->write & RING_MASK] = value;
 	ring->write++;
 	ring->count++;
@@ -43,7 +30,7 @@ i32	ring_push(struct ring *ring, u8 value)
 i32	ring_pop(struct ring *ring, u8 *value)
 {
 	if (ring->count == 0)
-		return -1;
+		schedule();
 	*value = ring->buffer[ring->read & RING_MASK];
 	ring->read++;
 	ring->count--;

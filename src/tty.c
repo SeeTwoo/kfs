@@ -3,8 +3,6 @@
 #include "task.h"
 #include "tty.h"
 
-void	schedule();
-
 extern struct task	tty_task;
 extern struct ring	ft_stdin;
 extern struct ring	events;
@@ -14,8 +12,6 @@ const char	tty_chars[];
 
 void	send_character(const char *set, enum events event)
 {
-	while (tty_task.state == BLOCKED)
-		schedule();
 	char ch = set[event];
 	if (ch)
 		ring_push(&ft_stdin, set[event]);
@@ -46,9 +42,6 @@ void	ft_tty()
 	struct tty	tty;
 
 	while (1) {
-		while (tty_task.state == WAITING)
-			schedule();
-
 		enum events	event;
 		i32			err = ring_pop(&events, (u8 *)&event);
 

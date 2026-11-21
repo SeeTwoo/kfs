@@ -3,8 +3,6 @@
 #include "ring_buffer.h"
 #include "task.h"
 
-void	schedule();
-
 extern struct ring	kbd_ring;
 extern struct ring	events;
 extern struct task	ft_atkbd_task;
@@ -12,20 +10,17 @@ extern struct task	ft_atkbd_task;
 const enum events	ps2_set[];
 const enum events	extended_ps2_set[];
 
+
 void	keyboard_handler_c(void)
 {
 	ring_push(&kbd_ring, inb(0x60));
 }
 
-// TODO replace raw size with macros, even better have ring_empty, ring_full methods
-// 4 indents ugh
 void	ft_atkbd()
 {
 	u8	multibyte = 0;
 
 	while (1) {
-		if (ft_atkbd_task.state == WAITING)
-			schedule();
 		u8	scancode;
 		u8	err = ring_pop(&kbd_ring, &scancode);
 		u8	is_release = scancode & 0x80;
@@ -34,13 +29,9 @@ void	ft_atkbd()
 		if (scancode == 0xE0) {
 			multibyte = 1;
 		} else if (multibyte) {
-			if (ft_atkbd_task.state == BLOCKED)
-				schedule();
 			ring_push(&events, (u8)(extended_ps2_set[index] | is_release));
 			multibyte = 0;
 		} else {
-			if (ft_atkbd_task.state == BLOCKED)
-				schedule();
 			ring_push(&events, ((u8)ps2_set[index] | is_release));
 		}
 	}

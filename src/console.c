@@ -9,8 +9,6 @@ extern struct ring	ft_stdout;
 
 extern struct task	console_task;
 
-void	schedule();
-
 void disable_vga_cursor()
 {
 	outb(0x3D4, 0x0A);
@@ -163,9 +161,6 @@ static void	do_escape_code(struct console *csl)
 static void	fill_buffer(struct console *csl, struct ring *ft_stdout)
 {
 	while (1) {
-		while (console_task.state == WAITING)
-			schedule();
-
 		char	c;
 		i32		err = ring_pop(ft_stdout, (u8 *)&c);
 
@@ -190,9 +185,6 @@ void	ft_console()
 	while (1) {
 		if (csl.escaped == 1)
 			fill_buffer(&csl, &ft_stdout);
-
-		while (console_task.state == WAITING)
-			schedule();
 		i32	err = ring_pop(&ft_stdout, (u8 *)&c);
 
 		if (!c)

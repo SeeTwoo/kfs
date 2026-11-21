@@ -3,9 +3,6 @@
 #include "ring_buffer.h"
 #include <stdarg.h>
 
-void	schedule();
-
-///
 u8 kisalpha(char c)
 {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
@@ -66,12 +63,8 @@ u32	kwrite(struct ring *out, char const *s, u32 n)
 	while (ret < n) {
 		i32 err = ring_push(out, *s);
 
-		if (err == 0) {
-			s++;
-			ret++;
-		} else if (err == -1) {
-			schedule();
-		}
+		s++;
+		ret++;
 	}
 	return ret;
 }
