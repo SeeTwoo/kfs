@@ -19,6 +19,7 @@ struct ring {
 
 void	init_ring(struct ring *, struct task *, struct task *);
 i32		ring_push(struct ring *, u8);
+void	interrupt_ring_push(struct ring *ring, u8 value);
 i32		ring_pop(struct ring *, u8 *);
 
 #endif

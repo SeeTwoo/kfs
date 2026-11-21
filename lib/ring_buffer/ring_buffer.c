@@ -27,6 +27,19 @@ i32	ring_push(struct ring *ring, u8 value)
 	return 0;
 }
 
+void	interrupt_ring_push(struct ring *ring, u8 value)
+{
+	if (ring->count == RING_BUFFER_SIZE)
+		return ;
+	ring->buffer[ring->write & RING_MASK] = value;
+	ring->write++;
+	ring->count++;
+	if (ring->count == RING_BUFFER_SIZE)
+		ring->provider->state = BLOCKED;
+	if (ring->user->state == WAITING)
+		ring->user->state = READY;
+}
+
 i32	ring_pop(struct ring *ring, u8 *value)
 {
 	if (ring->count == 0)

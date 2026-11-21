@@ -9,7 +9,6 @@ Feat:
 - implement read from a ring buffer
 - make the console color_handling a little more complete, let's say the 16 background colors and the 16 foreground colors
 - implement the clear escape code (H and J, one does cursor postion, the other clears)
-- do the "interrupt ring push" without schedule
 
 Fix / Check:
 - fix the print_stack command

@@ -13,7 +13,7 @@ const enum events	extended_ps2_set[];
 
 void	keyboard_handler_c(void)
 {
-	ring_push(&kbd_ring, inb(0x60));
+	interrupt_ring_push(&kbd_ring, inb(0x60));
 }
 
 void	ft_atkbd()
