@@ -52,6 +52,7 @@ void	init_task(struct task *t, struct task *next, u32 stack_base, void (*entry_f
 	u32	*stack = (u32*)(t->stack_base + 4096);
 
 	*(--stack) = (u32)entry_function;
+	*(--stack) = 0x202;
 	*(--stack) = 0;
 	*(--stack) = 0;
 	*(--stack) = 0;
@@ -113,9 +114,9 @@ void kmain(void)
 	init_ring(&ft_stdin, &tty_task, &shell_task);
 	init_ring(&ft_stdout, &shell_task, &console_task);
 	welcome_screen(&ft_stdout);
-	sti();
 	while (1) {
 		schedule();
+		sti();
 		hlt();
 	}
 	panic("the cpu escaped the scheduler (play the lottery) (T_T) ");

@@ -1,3 +1,4 @@
+#include "inline_asm.h"
 #include "kstdlib.h"
 #include "ktypes.h"
 #include "ring_buffer.h"
@@ -15,6 +16,7 @@ void	init_ring(struct ring *ring, struct task *provider, struct task *user)
 //may need a cli and sti
 i32	ring_push(struct ring *ring, u8 value)
 {
+	cli();
 	if (ring->count == RING_BUFFER_SIZE)
 		schedule();
 	ring->buffer[ring->write & RING_MASK] = value;
@@ -24,6 +26,7 @@ i32	ring_push(struct ring *ring, u8 value)
 		ring->provider->state = BLOCKED;
 	if (ring->user->state == WAITING)
 		ring->user->state = READY;
+	sti();
 	return 0;
 }
 
@@ -42,6 +45,7 @@ void	interrupt_ring_push(struct ring *ring, u8 value)
 
 i32	ring_pop(struct ring *ring, u8 *value)
 {
+	cli();
 	if (ring->count == 0)
 		schedule();
 	*value = ring->buffer[ring->read & RING_MASK];
@@ -51,5 +55,6 @@ i32	ring_pop(struct ring *ring, u8 *value)
 		ring->user->state = WAITING;
 	if (ring->provider->state == BLOCKED)
 		ring->provider->state = READY;
+	sti();
 	return 0;
 }

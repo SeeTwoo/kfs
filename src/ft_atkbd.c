@@ -1,5 +1,6 @@
 #include "events.h"
 #include "io.h"
+#include "panic.h"
 #include "ring_buffer.h"
 #include "task.h"
 
@@ -35,6 +36,7 @@ void	ft_atkbd()
 			ring_push(&events, ((u8)ps2_set[index] | is_release));
 		}
 	}
+	panic("ft_atkbd_ended");
 }
 
 const enum events ps2_set[] = {

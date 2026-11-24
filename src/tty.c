@@ -1,4 +1,5 @@
 #include "events.h"
+#include "panic.h"
 #include "ring_buffer.h"
 #include "task.h"
 #include "tty.h"
@@ -47,6 +48,7 @@ void	ft_tty()
 
 		consume_event(&tty, event);
 	}
+	panic("tty ended");
 }
 
 const char	tty_chars[] = {

@@ -2,6 +2,7 @@
 #include "io.h"
 #include "kstdlib.h"
 #include "ktypes.h"
+#include "panic.h"
 #include "ring_buffer.h"
 #include "task.h"
 
@@ -194,4 +195,5 @@ void	ft_console()
 		else
 			regular_console(&csl, &ft_stdout, c);
 	}
+	panic("console ended");
 }
